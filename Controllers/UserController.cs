@@ -30,7 +30,7 @@ namespace EduhubAPI.Controllers
             }
             else
             {
-                return BadRequest("User ID not found.");
+                return BadRequest("User ID not found.");1
             }
         }
     }
