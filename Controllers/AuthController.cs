@@ -56,7 +56,8 @@ namespace EduhubAPI.Controllers
             return Ok(new
             {
                 message = "success",
-                token = jwt
+                token = jwt,
+                role = role
             });
         }
 
