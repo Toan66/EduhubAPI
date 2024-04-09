@@ -48,6 +48,7 @@ namespace EduhubAPI.Controllers
             // Assuming roles are managed, passing the user's role for roles.
             var jwt = _jwtService.Generate(user.UserId, new List<string> { role });
 
+
             Response.Cookies.Append("jwt", jwt, new CookieOptions
             {
                 HttpOnly = true
@@ -56,7 +57,8 @@ namespace EduhubAPI.Controllers
             return Ok(new
             {
                 message = "success",
-                token = jwt
+                token = jwt,
+                role = role
             });
         }
 
