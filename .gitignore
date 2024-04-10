@@ -361,6 +361,5 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
-
-appsettings.json
-Models/EDUHUBContext.cs
+/Models/EDUHUBContext.cs
+/appsettings.json
