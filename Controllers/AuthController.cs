@@ -24,7 +24,18 @@ namespace EduhubAPI.Controllers
             {
                 Username = dto.Username,
                 Password = BCrypt.Net.BCrypt.HashPassword(dto.Password),
-                UserTypeId = dto.UserTypeId
+                UserTypeId = dto.UserTypeId,
+                UserInfos = new List<UserInfo>
+                {
+                    new UserInfo
+                    {
+                        FullName = dto.FullName,
+                        Email = dto.Email,
+                        DateOfBirth = dto.DateOfBirth,
+                        Gender = dto.Gender,
+                        PhoneNumber = dto.PhoneNumber
+                    }
+                }
             };
 
             return Created("success", _context.Create(user));
@@ -150,7 +161,7 @@ namespace EduhubAPI.Controllers
                 SameSite = SameSiteMode.None // Sử dụng SameSite = SameSiteMode.None nếu cookie được tạo với tùy chọn này
             };
 
-            Response.Cookies.Delete("jwt",cookieOptions);
+            Response.Cookies.Delete("jwt", cookieOptions);
 
             return Ok(new
             {

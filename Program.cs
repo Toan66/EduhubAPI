@@ -13,15 +13,17 @@ namespace EduhubAPI
     {
         public static void Main(string[] args)
         {
-            var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
-
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+            builder.Services.AddControllers().AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+            });
+
 
             builder.Services.AddControllers();
 
-            // Thêm dịch vụ authentication
+            // Authentication
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
@@ -33,20 +35,13 @@ namespace EduhubAPI
                         ValidateAudience = false,
                         RoleClaimType = ClaimTypes.Role
                     };
-                    //options.Events.OnMessageReceived = context =>
-                    //{
-                    //    if (context.Request.Cookies.ContainsKey("jwt"))
-                    //    {
-                    //        var token = context.Request.Cookies["jwt"];
-                    //        context.Token = token;
-                    //    }
-                    //    return Task.CompletedTask;
-                    //};
                 });
 
             builder.Services.AddScoped<UserRepository>();
+            builder.Services.AddScoped<CourseRepository>();
 
             builder.Services.AddScoped<JwtService>();
+
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
