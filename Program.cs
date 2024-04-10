@@ -33,6 +33,15 @@ namespace EduhubAPI
                         ValidateAudience = false,
                         RoleClaimType = ClaimTypes.Role
                     };
+                    //options.Events.OnMessageReceived = context =>
+                    //{
+                    //    if (context.Request.Cookies.ContainsKey("jwt"))
+                    //    {
+                    //        var token = context.Request.Cookies["jwt"];
+                    //        context.Token = token;
+                    //    }
+                    //    return Task.CompletedTask;
+                    //};
                 });
 
             builder.Services.AddScoped<UserRepository>();

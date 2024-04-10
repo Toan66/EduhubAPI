@@ -35,11 +35,11 @@ namespace EduhubAPI.Controllers
         {
             var user = _context.GetByUserName(dto.Username);
 
-            if (user == null) return BadRequest(new { message = "Invalid Credentials" });
+            if (user == null) return BadRequest(new { message = "Username don't exist!" });
 
             if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.Password))
             {
-                return BadRequest(new { message = "Invalid Credentials" });
+                return BadRequest(new { message = "Wrong password" });
             }
 
             // Retrieve the user's role
@@ -50,7 +50,9 @@ namespace EduhubAPI.Controllers
 
             Response.Cookies.Append("jwt", jwt, new CookieOptions
             {
-                HttpOnly = true
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None
             });
 
             return Ok(new
@@ -139,7 +141,15 @@ namespace EduhubAPI.Controllers
         [HttpPost("logout")]
         public IActionResult Logout()
         {
-            Response.Cookies.Delete("jwt");
+            // Đảm bảo rằng các tùy chọn cookie khi xóa giống với khi bạn tạo cookie
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true, // Sử dụng Secure = true nếu cookie được tạo với tùy chọn này
+                SameSite = SameSiteMode.None // Sử dụng SameSite = SameSiteMode.None nếu cookie được tạo với tùy chọn này
+            };
+
+            Response.Cookies.Delete("jwt",cookieOptions);
 
             return Ok(new
             {
