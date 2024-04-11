@@ -75,5 +75,9 @@ namespace EduhubAPI.Repositories
 
             return userDetails;
         }
+        public string GetUserName(int userId){
+            var user = _context.Users.Include(u => u.Username).FirstOrDefault(u => u.UserId == userId);
+            return user.Username;
+        }
     }
 }

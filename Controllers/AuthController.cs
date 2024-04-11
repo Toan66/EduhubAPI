@@ -97,6 +97,28 @@ namespace EduhubAPI.Controllers
             }
         }
 
+        [HttpGet("name")]
+        public IActionResult GetName()
+        {
+            try
+            {
+                var jwt = Request.Cookies["jwt"];
+                if (string.IsNullOrEmpty(jwt))
+                {
+                    return Unauthorized();
+                }
+                var token = _jwtService.Verify(jwt);
+                int userId = int.Parse(token.Issuer);
+
+                var name = _context.GetUserName(userId);
+                return Ok(name);
+            }
+            catch (Exception)
+            {
+                return Unauthorized();
+            }
+        }
+
         [HttpGet("detail")]
         public IActionResult GetDetail()
         {

@@ -14,25 +14,5 @@ namespace EduhubAPI.Controllers
         {
             _context = context;
         }
-        [HttpGet("DetailsFromCookie")]
-        public IActionResult GetUserDetailsFromCookie()
-        {
-            // Đọc ID người dùng từ cookies
-            if (HttpContext.Request.Cookies.TryGetValue("userId", out string userIdValue) && int.TryParse(userIdValue, out int userId))
-            {
-                var userDetails = _context.GetUserDetails(userId);
-                if (userDetails == null)
-                {
-                    return NotFound();
-                }
-
-                return Ok(userDetails);
-            }
-            else
-            {
-                return BadRequest("User ID not found.");
-            }
-        }
-
     }
 }
