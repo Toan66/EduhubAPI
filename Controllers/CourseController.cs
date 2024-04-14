@@ -1,7 +1,11 @@
-﻿using EduhubAPI.Models;
+﻿using EduhubAPI.Helpers;
+using EduhubAPI.Dtos;
+using EduhubAPI.Models;
 using EduhubAPI.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Xml.Linq;
 
 namespace EduhubAPI.Controllers
 {
@@ -10,9 +14,11 @@ namespace EduhubAPI.Controllers
     public class CourseController : ControllerBase
     {
         private readonly CourseRepository _courseRepository;
-        public CourseController(CourseRepository context)
+        private readonly JwtService _jwtService;
+        public CourseController(CourseRepository context, JwtService jwtService)
         {
             _courseRepository = context;
+            _jwtService = jwtService;
         }
         [HttpGet]
         public IActionResult GetAllCourses()
@@ -30,15 +36,36 @@ namespace EduhubAPI.Controllers
             }
             return Ok(course);
         }
-        [HttpPost]
-        public IActionResult AddCourse([FromBody] Course course)
+        [HttpPost("create")]
+        public IActionResult AddCourse(AddCourseDto addCourse)
         {
-            if (course == null)
+            try
             {
-                return BadRequest();
+                var jwt = Request.Cookies["jwt"];
+                if (string.IsNullOrEmpty(jwt))
+                {
+                    return Unauthorized();
+                }
+                var token = _jwtService.Verify(jwt);
+                int userId = int.Parse(token.Issuer);
+
+                var course = new Course
+                {
+                    TeacherId = userId,
+                    CourseName = addCourse.CourseName,
+                    CourseDescription = addCourse.CourseDescription,
+                    ApprovalStatus = false,
+                    CategoryId = addCourse.CategoryId,
+                    FeatureImage = addCourse.FeatureImage
+                };
+
+                return Ok(_courseRepository.AddCourse(course));
             }
-            var createdCourse = _courseRepository.AddCourse(course);
-            return CreatedAtAction(nameof(GetCourseById), new { id = createdCourse.CourseId }, createdCourse);
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+            
         }
         [HttpPut("{id}")]
         public IActionResult UpdateCourse(int id, [FromBody] Course course)

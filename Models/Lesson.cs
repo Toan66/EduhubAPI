@@ -14,6 +14,7 @@ namespace EduhubAPI.Models
         public int ChapterId { get; set; }
         public string LessonTitle { get; set; } = null!;
         public string? LessonContent { get; set; }
+        public string? Video { get; set; }
 
         public virtual Chapter Chapter { get; set; } = null!;
         public virtual ICollection<StudentLesson> StudentLessons { get; set; }
