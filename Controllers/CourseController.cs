@@ -1,8 +1,11 @@
 ﻿using EduhubAPI.Helpers;
+using EduhubAPI.Dtos;
 using EduhubAPI.Models;
 using EduhubAPI.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Xml.Linq;
 
 namespace EduhubAPI.Controllers
 {
@@ -33,8 +36,8 @@ namespace EduhubAPI.Controllers
             }
             return Ok(course);
         }
-        [HttpPost]
-        public IActionResult AddCourse([FromBody] Course course)
+        [HttpPost("create")]
+        public IActionResult AddCourse(AddCourseDto addCourse)
         {
             try
             {
@@ -45,18 +48,24 @@ namespace EduhubAPI.Controllers
                 }
                 var token = _jwtService.Verify(jwt);
                 int userId = int.Parse(token.Issuer);
-                course.TeacherId = userId;
 
-                var createdCourse = _courseRepository.AddCourse(course);
-                return CreatedAtAction(nameof(GetCourseById), new { id = createdCourse.CourseId }, createdCourse);
+                var course = new Course
+                {
+                    TeacherId = userId,
+                    CourseName = addCourse.CourseName,
+                    CourseDescription = addCourse.CourseDescription,
+                    ApprovalStatus = false,
+                    CategoryId = addCourse.CategoryId,
+                    FeatureImage = addCourse.FeatureImage
+                };
 
-
+                return Ok(_courseRepository.AddCourse(course));
             }
             catch (Exception e)
             {
-                return BadRequest(new { message = e.Message });
+                return BadRequest(e.Message);
             }
-
+            
         }
         [HttpPut("{id}")]
         public IActionResult UpdateCourse(int id, [FromBody] Course course)
