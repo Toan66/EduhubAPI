@@ -17,6 +17,7 @@ namespace EduhubAPI.Models
         public string? CourseDescription { get; set; }
         public bool? ApprovalStatus { get; set; }
         public int CategoryId { get; set; }
+        public string? FeatureImage { get; set; }
 
         public virtual CourseCategory Category { get; set; } = null!;
         public virtual User Teacher { get; set; } = null!;
