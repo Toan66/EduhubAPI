@@ -141,12 +141,12 @@ namespace EduhubAPI.Controllers
             }
         }
 
-        [HttpGet]
-        public IActionResult GetUsers()
-        {
-            var users = _context.GetAllUsers();
-            return Ok(users);
-        }
+        //[HttpGet]
+        //public IActionResult GetUsers()
+        //{
+        //    var users = _context.GetAllUsers();
+        //    return Ok(users);
+        //}
 
         [HttpGet("user")]
         public IActionResult SingleUser()
