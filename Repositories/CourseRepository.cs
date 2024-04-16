@@ -53,6 +53,11 @@ namespace EduhubAPI.Repositories
             throw new NotImplementedException();
         }
 
+        public IEnumerable<Course> GetCoursesByTeacherId(int teacherId)
+        {
+            return _context.Courses.Where(c => c.TeacherId == teacherId).ToList();
+        }
+
         public Course GetCourseDetails(int courseId)
         {
             var course = _context.Courses

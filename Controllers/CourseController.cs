@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Xml.Linq;
+using Microsoft.AspNetCore.Authorization;
 
 namespace EduhubAPI.Controllers
 {
@@ -103,6 +104,33 @@ namespace EduhubAPI.Controllers
             }
         
             return Ok(courseDetails);
+        }
+        [HttpGet("ByTeacher")]
+        public IActionResult GetCoursesByTeacher()
+        {
+            try
+            {
+                var jwt = Request.Cookies["jwt"];
+                if (string.IsNullOrEmpty(jwt))
+                {
+                    return Unauthorized("Không có token được cung cấp.");
+                }
+        
+                var token = _jwtService.Verify(jwt);
+                int userId = int.Parse(token.Issuer);
+        
+                var courses = _courseRepository.GetCoursesByTeacherId(userId);
+                if (courses == null || !courses.Any())
+                {
+                    return NotFound("Không tìm thấy khóa học nào.");
+                }
+        
+                return Ok(courses);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
     }
 }
