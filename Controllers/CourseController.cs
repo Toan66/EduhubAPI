@@ -23,7 +23,7 @@ namespace EduhubAPI.Controllers
         [HttpGet]
         public IActionResult GetAllCourses()
         {
-            var courses = _courseRepository.GetAllCourses();
+            var courses = _courseRepository.GetAllCourses().Where(x => x.ApprovalStatus == true);
             return Ok(courses);
         }
         [HttpGet("{id}")]
