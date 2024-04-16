@@ -52,5 +52,37 @@ namespace EduhubAPI.Repositories
         {
             throw new NotImplementedException();
         }
+
+        public Course GetCourseDetails(int courseId)
+        {
+            var course = _context.Courses
+                .Where(c => c.CourseId == courseId)
+                .Select(c => new Course
+                {
+                    CourseId = c.CourseId,
+                    CourseName = c.CourseName,
+                    CourseDescription = c.CourseDescription,
+                    TeacherId = c.TeacherId,
+                    ApprovalStatus = c.ApprovalStatus,
+                    CategoryId = c.CategoryId,
+                    FeatureImage = c.FeatureImage,
+                    Chapters = c.Chapters.Select(ch => new Chapter
+                    {
+                        ChapterId = ch.ChapterId,
+                        ChapterTitle = ch.ChapterTitle,
+                        CourseId = ch.CourseId,
+                        Lessons = ch.Lessons.Select(l => new Lesson
+                        {
+                            LessonId = l.LessonId,
+                            LessonTitle = l.LessonTitle,
+                            ChapterId = l.ChapterId,
+                            LessonContent = l.LessonContent,
+                            Video = l.Video
+                        }).ToList()
+                    }).ToList()
+                }).FirstOrDefault();
+        
+            return course;
+        }
     }
 }

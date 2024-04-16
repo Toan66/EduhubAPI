@@ -93,5 +93,16 @@ namespace EduhubAPI.Controllers
             _courseRepository.DeleteCourse(id);
             return NoContent();
         }
+        [HttpGet("{id}/details")]
+        public IActionResult GetCourseDetails(int id)
+        {
+            var courseDetails = _courseRepository.GetCourseDetails(id);
+            if (courseDetails == null)
+            {
+                return NotFound("Không tìm thấy khóa học.");
+            }
+        
+            return Ok(courseDetails);
+        }
     }
 }
