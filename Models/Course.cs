@@ -9,6 +9,7 @@ namespace EduhubAPI.Models
         {
             Chapters = new HashSet<Chapter>();
             Enrollments = new HashSet<Enrollment>();
+            Reviews = new HashSet<Review>();
         }
 
         public int CourseId { get; set; }
@@ -18,10 +19,12 @@ namespace EduhubAPI.Models
         public bool? ApprovalStatus { get; set; }
         public int CategoryId { get; set; }
         public string? FeatureImage { get; set; }
+        public decimal? AverageRating { get; set; }
 
         public virtual CourseCategory Category { get; set; } = null!;
         public virtual User Teacher { get; set; } = null!;
         public virtual ICollection<Chapter> Chapters { get; set; }
         public virtual ICollection<Enrollment> Enrollments { get; set; }
+        public virtual ICollection<Review> Reviews { get; set; }
     }
 }

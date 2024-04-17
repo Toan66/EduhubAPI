@@ -55,5 +55,26 @@ namespace EduhubAPI.Repositories
                 _context.SaveChanges();
             }
         }
+
+        public Chapter GetChapterDetails(int chapterId)
+        {
+            var chapter = _context.Chapters
+                .Where(ch => ch.ChapterId == chapterId)
+                .Select(ch => new Chapter
+                {
+                    ChapterId = ch.ChapterId,
+                    ChapterTitle = ch.ChapterTitle,
+                    CourseId = ch.CourseId,
+                    Lessons = ch.Lessons.Select(l => new Lesson
+                    {
+                        LessonId = l.LessonId,
+                        LessonTitle = l.LessonTitle,
+                        ChapterId = l.ChapterId,
+                        LessonContent = l.LessonContent,
+                        Video = l.Video
+                    }).ToList()
+                }).FirstOrDefault();
+            return chapter;
+        }
     }
 }

@@ -20,27 +20,25 @@ namespace EduhubAPI.Controllers
         }
 
         // Thêm mới Lesson
-        [HttpPost]
-        public IActionResult AddLesson([FromBody] Lesson lesson)
-        {
-            if (lesson == null)
-            {
-                return BadRequest("Dữ liệu lesson không hợp lệ.");
-            }
-        
+        [HttpPost ("Chapter/{chapterId}/addLesson")]
+        public IActionResult AddLesson(int chapterId, AddLessonDto dto)
+        {        
             try
             {
-                var newLesson = _lessonRepository.AddLesson(lesson);
-                return CreatedAtAction(nameof(GetLessonById), new { id = newLesson.LessonId }, newLesson);
+                var lesson = new Lesson
+                {
+                    ChapterId = chapterId,
+                    LessonTitle = dto.LessonTitle,
+                    LessonContent = dto.LessonContent,
+                    Video = dto.Video
+                };
+                return Ok(_lessonRepository.AddLesson(lesson));
             }
             catch (Exception ex)
             {
                 return StatusCode(500, $"Lỗi khi thêm lesson mới: {ex.Message}");
             }
         }
-
-
-        
 
         // Lấy Lesson theo ID
         [HttpGet("{id}")]
