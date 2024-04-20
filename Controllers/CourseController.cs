@@ -2,11 +2,8 @@
 using EduhubAPI.Dtos;
 using EduhubAPI.Models;
 using EduhubAPI.Repositories;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Xml.Linq;
-using Microsoft.AspNetCore.Authorization;
+
 
 namespace EduhubAPI.Controllers
 {
@@ -105,6 +102,7 @@ namespace EduhubAPI.Controllers
         
             return Ok(courseDetails);
         }
+
         [HttpGet("ByTeacher")]
         public IActionResult GetCoursesByTeacher()
         {

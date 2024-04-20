@@ -75,6 +75,24 @@ namespace EduhubAPI.Controllers
             });
         }
 
+        [HttpPost("logout")]
+        public IActionResult Logout()
+        {
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None
+            };
+
+            Response.Cookies.Delete("jwt", cookieOptions);
+
+            return Ok(new
+            {
+                message = "success"
+            });
+        }
+
         [HttpGet("role")]
         public IActionResult GetRole()
         {
@@ -95,100 +113,8 @@ namespace EduhubAPI.Controllers
             {
                 return Unauthorized();
             }
-        }
+        }       
 
-        [HttpGet("name")]
-        public IActionResult GetName()
-        {
-            try
-            {
-                var jwt = Request.Cookies["jwt"];
-                if (string.IsNullOrEmpty(jwt))
-                {
-                    return Unauthorized();
-                }
-                var token = _jwtService.Verify(jwt);
-                int userId = int.Parse(token.Issuer);
-
-                var name = _context.GetUserName(userId);
-                return Ok(name);
-            }
-            catch (Exception)
-            {
-                return Unauthorized();
-            }
-        }
-
-        [HttpGet("detail")]
-        public IActionResult GetDetail()
-        {
-            try
-            {
-                var jwt = Request.Cookies["jwt"];
-                if (string.IsNullOrEmpty(jwt))
-                {
-                    return Unauthorized();
-                }
-                var token = _jwtService.Verify(jwt);
-                int userId = int.Parse(token.Issuer);
-
-                var detail = _context.GetUserDetails(userId);
-                return Ok(detail);
-            }
-            catch (Exception)
-            {
-                return Unauthorized();
-            }
-        }
-
-        //[HttpGet]
-        //public IActionResult GetUsers()
-        //{
-        //    var users = _context.GetAllUsers();
-        //    return Ok(users);
-        //}
-
-        [HttpGet("user")]
-        public IActionResult SingleUser()
-        {
-            try
-            {
-                var jwt = Request.Cookies["jwt"];
-                if (string.IsNullOrEmpty(jwt))
-                {
-                    return Unauthorized();
-                }
-                var token = _jwtService.Verify(jwt);
-
-                int userId = int.Parse(token.Issuer);
-
-                var user = _context.GetUserByID(userId);
-
-                return Ok(user);
-            }
-            catch (Exception)
-            {
-                return Unauthorized();
-            }
-        }
-
-        [HttpPost("logout")]
-        public IActionResult Logout()
-        {
-            // Đảm bảo rằng các tùy chọn cookie khi xóa giống với khi bạn tạo cookie
-            var cookieOptions = new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = true, // Sử dụng Secure = true nếu cookie được tạo với tùy chọn này
-                SameSite = SameSiteMode.None // Sử dụng SameSite = SameSiteMode.None nếu cookie được tạo với tùy chọn này
-            };
-
-            Response.Cookies.Delete("jwt", cookieOptions);
-
-            return Ok(new
-            {
-                message = "success"
-            });
-        }
+        
     }
 }

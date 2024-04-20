@@ -39,8 +39,10 @@ namespace EduhubAPI
 
             builder.Services.AddScoped<UserRepository>();
             builder.Services.AddScoped<CourseRepository>();
-            builder.Services.AddScoped<LessonRepository>();
             builder.Services.AddScoped<ChapterRepository>();
+            builder.Services.AddScoped<LessonRepository>();
+            builder.Services.AddScoped<TestRepository>();
+
             builder.Services.AddScoped<JwtService>();
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
