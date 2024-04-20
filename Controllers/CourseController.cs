@@ -63,22 +63,74 @@ namespace EduhubAPI.Controllers
             {
                 return BadRequest(e.Message);
             }
-            
+
         }
         [HttpPut("{id}")]
-        public IActionResult UpdateCourse(int id, [FromBody] Course course)
+        public IActionResult UpdateCourse(int id, [FromBody] UpdateCourseDto updateCourseDto)
         {
-            if (course == null || course.CourseId != id)
-            {
-                return BadRequest();
-            }
-            var existingCourse = _courseRepository.GetCourseById(id);
-            if (existingCourse == null)
+            var course = _courseRepository.GetCourseById(id);
+            if (course == null)
             {
                 return NotFound();
             }
+
+            course.CourseName = updateCourseDto.CourseName;
+            course.CourseDescription = updateCourseDto.CourseDescription;
+
             _courseRepository.UpdateCourse(course);
             return NoContent();
+        }
+        [HttpPut("{id}/updateName")]
+        public IActionResult UpdateCourseName(int id, [FromBody] UpdateCourseNameDto updateCourseNameDto)
+        {
+            var course = _courseRepository.GetCourseById(id);
+            if (course == null)
+            {
+                return NotFound("Khóa học không tồn tại.");
+            }
+
+            course.CourseName = updateCourseNameDto.CourseName;
+            _courseRepository.UpdateCourse(course);
+            return Ok("Tên khóa học đã được cập nhật.");
+        }
+        [HttpPut("{id}/updateImage")]
+        public IActionResult UpdateCourseImage(int id, [FromBody] UpdateCourseImageDto updateCourseImageDto)
+        {
+            var course = _courseRepository.GetCourseById(id);
+            if (course == null)
+            {
+                return NotFound("Khóa học không tồn tại.");
+            }
+
+            course.FeatureImage = updateCourseImageDto.FeatureImage;
+            _courseRepository.UpdateCourse(course);
+            return Ok("Ảnh đại diện khóa học đã được cập nhật.");
+        }
+        [HttpPut("{id}/updateDescription")]
+        public IActionResult UpdateCourseDescription(int id, [FromBody] UpdateCourseDescriptionDto updateCourseDescriptionDto)
+        {
+            var course = _courseRepository.GetCourseById(id);
+            if (course == null)
+            {
+                return NotFound("Khóa học không tồn tại.");
+            }
+
+            course.CourseDescription = updateCourseDescriptionDto.CourseDescription;
+            _courseRepository.UpdateCourse(course);
+            return Ok("Mô tả khóa học đã được cập nhật.");
+        }
+        [HttpPut("{id}/updateCategory")]
+        public IActionResult UpdateCourseCategory(int id, [FromBody] UpdateCourseCategoryDto updateCourseCategoryDto)
+        {
+            var course = _courseRepository.GetCourseById(id);
+            if (course == null)
+            {
+                return NotFound("Khóa học không tồn tại.");
+            }
+        
+            course.CategoryId = updateCourseCategoryDto.CategoryId;
+            _courseRepository.UpdateCourse(course);
+            return Ok("Danh mục khóa học đã được cập nhật.");
         }
         [HttpDelete("{id}")]
         public IActionResult DeleteCourse(int id)
@@ -99,7 +151,7 @@ namespace EduhubAPI.Controllers
             {
                 return NotFound("Không tìm thấy khóa học.");
             }
-        
+
             return Ok(courseDetails);
         }
 
@@ -113,16 +165,16 @@ namespace EduhubAPI.Controllers
                 {
                     return Unauthorized("Không có token được cung cấp.");
                 }
-        
+
                 var token = _jwtService.Verify(jwt);
                 int userId = int.Parse(token.Issuer);
-        
+
                 var courses = _courseRepository.GetCoursesByTeacherId(userId);
                 if (courses == null || !courses.Any())
                 {
                     return NotFound("Không tìm thấy khóa học nào.");
                 }
-        
+
                 return Ok(courses);
             }
             catch (Exception e)
