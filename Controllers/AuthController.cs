@@ -33,7 +33,8 @@ namespace EduhubAPI.Controllers
                         Email = dto.Email,
                         DateOfBirth = dto.DateOfBirth,
                         Gender = dto.Gender,
-                        PhoneNumber = dto.PhoneNumber
+                        PhoneNumber = dto.PhoneNumber,
+                        Avatar = dto.Avatar
                     }
                 }
             };

@@ -34,7 +34,10 @@ namespace EduhubAPI.Repositories
 
         public IEnumerable<Chapter> GetChaptersByCourseId(int courseId)
         {
-            return _context.Chapters.Where(c => c.CourseId == courseId).ToList();
+            return _context.Chapters
+                .Where(c => c.CourseId == courseId)
+                .OrderBy(c => c.ChapterOrder) 
+                .ToList();
         }
 
         public Chapter UpdateChapter(Chapter chapter)
@@ -47,10 +50,19 @@ namespace EduhubAPI.Repositories
         // Delete a chapter
         public void DeleteChapter(int chapterId)
         {
-            var chapter = _context.Chapters.FirstOrDefault(c => c.ChapterId == chapterId);
-            if (chapter != null)
+            var chapterToDelete = _context.Chapters.Find(chapterId);
+            if (chapterToDelete != null)
             {
-                _context.Chapters.Remove(chapter);
+                var affectedChapters = _context.Chapters
+                    .Where(c => c.CourseId == chapterToDelete.CourseId && c.ChapterOrder > chapterToDelete.ChapterOrder)
+                    .ToList();
+
+                foreach (var chapter in affectedChapters)
+                {
+                    chapter.ChapterOrder--;
+                }
+
+                _context.Chapters.Remove(chapterToDelete);
                 _context.SaveChanges();
             }
         }

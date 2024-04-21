@@ -24,12 +24,15 @@ namespace EduhubAPI.Controllers
         [HttpPost("Course/{courseId}/addChapter")]
         public IActionResult AddChapter(int courseId, AddChapterDto dto)
         {
+
             try
             {
+                var currentChapterCount = _chapterRepository.GetChaptersByCourseId(courseId).Count();
                 var chapter = new Chapter
                 {
                     ChapterTitle = dto.ChapterTitle,
                     ChapterDescription = dto.ChapterDescription,
+                    ChapterOrder = currentChapterCount + 1,
                     CourseId = courseId
                 };
                 return Ok(_chapterRepository.AddChapter(chapter));
@@ -95,8 +98,36 @@ namespace EduhubAPI.Controllers
             {
                 return NotFound("Không tìm thấy chương.");
             }
-        
+
             return Ok(chapterDetails);
+        }
+        [HttpPost("UpdateOrder")]
+        public IActionResult UpdateChapterOrder([FromBody] UpdateChapterOrderDto updateOrderDto)
+        {
+            try
+            {
+                if (updateOrderDto.ChaptersOrder == null || !updateOrderDto.ChaptersOrder.Any())
+                {
+                    return BadRequest("Danh sách chapter không hợp lệ.");
+                }
+
+                foreach (var chapterOrder in updateOrderDto.ChaptersOrder)
+                {
+                    var chapter = _chapterRepository.GetChapterById(chapterOrder.ChapterId);
+                    if (chapter == null)
+                    {
+                        return NotFound($"Không tìm thấy chapter với ID: {chapterOrder.ChapterId}");
+                    }
+                    chapter.ChapterOrder = chapterOrder.NewOrder;
+                    _chapterRepository.UpdateChapter(chapter);
+                }
+
+                return Ok("Thứ tự chapter đã được cập nhật thành công.");
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
     }
 }

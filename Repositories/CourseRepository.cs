@@ -76,10 +76,11 @@ namespace EduhubAPI.Repositories
                     ApprovalStatus = c.ApprovalStatus,
                     CategoryId = c.CategoryId,
                     FeatureImage = c.FeatureImage,
-                    Chapters = c.Chapters.Select(ch => new Chapter
+                    Chapters = c.Chapters.OrderBy(ch => ch.ChapterOrder).Select(ch => new Chapter
                     {
                         ChapterId = ch.ChapterId,
                         ChapterTitle = ch.ChapterTitle,
+                        ChapterOrder = ch.ChapterOrder,
                         CourseId = ch.CourseId,
                         Lessons = ch.Lessons.Select(l => new Lesson
                         {

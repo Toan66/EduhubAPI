@@ -12,6 +12,7 @@ namespace EduhubAPI.Models
         public DateTime? DateOfBirth { get; set; }
         public string Gender { get; set; } = null!;
         public string Email { get; set; } = null!;
+        public string? Avatar { get; set; }
 
         public virtual User User { get; set; } = null!;
     }
