@@ -76,6 +76,7 @@ namespace EduhubAPI.Repositories
                     ApprovalStatus = c.ApprovalStatus,
                     CategoryId = c.CategoryId,
                     FeatureImage = c.FeatureImage,
+                    
                     Chapters = c.Chapters.OrderBy(ch => ch.ChapterOrder).Select(ch => new Chapter
                     {
                         ChapterId = ch.ChapterId,
@@ -94,6 +95,7 @@ namespace EduhubAPI.Repositories
                 }).FirstOrDefault();
         
             return course;
-        }
+        }        
+        
     }
 }

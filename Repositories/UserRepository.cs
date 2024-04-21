@@ -29,6 +29,10 @@ namespace EduhubAPI.Repositories
         {
             return _context.Users.FirstOrDefault(u => u.UserId == id);
         }
+        public UserInfo? GetUserInfoByID(int id)
+        {
+            return _context.UserInfos.FirstOrDefault(u => u.UserId == id);
+        }
 
         public string GetUserRole(int userId)
         {
@@ -40,6 +44,12 @@ namespace EduhubAPI.Repositories
             _context.Users.Update(user);
             _context.SaveChanges();
             return user;
+        }
+
+        public UserInfo UpdateUserInfo(UserInfo userInfo){
+            _context.UserInfos.Update(userInfo);
+            _context.SaveChanges();
+            return userInfo;
         }
 
         public void DeleteUser(int userId)
@@ -66,7 +76,8 @@ namespace EduhubAPI.Repositories
                         Email = ui.Email,
                         DateOfBirth = ui.DateOfBirth,
                         Gender = ui.Gender,
-                        PhoneNumber = ui.PhoneNumber
+                        PhoneNumber = ui.PhoneNumber,
+                        Avatar = ui.Avatar,
                     }).FirstOrDefault() // Sử dụng FirstOrDefault vì mỗi User có thể chỉ có một UserInfo
                 }).FirstOrDefault();
 
@@ -76,84 +87,6 @@ namespace EduhubAPI.Repositories
         {
             var user = _context.Users.Include(u => u.UserInfos).FirstOrDefault(u => u.UserId == userId);
             return user?.UserInfos?.Select(ui => ui.FullName).FirstOrDefault() ?? string.Empty;
-        }
-        public void UpdateUserFullName(int userId, string fullName)
-        {
-            var user = GetUserByID(userId);
-            if (user != null && user.UserInfos.Any()) // Check if user and UserInfos are not null and UserInfos has at least one element
-            {
-                // Assuming User has a UserInfo navigation property that includes a collection of UserInfo
-                var userInfo = user.UserInfos.First(); // Access the first UserInfo object
-                userInfo.FullName = fullName; // Update the FullName of the first UserInfo object
-                UpdateUser(user); // Save changes
-            }
-        }
-        public void UpdateUserPhoneNumber(int userId, string phoneNumber)
-        {
-            var user = GetUserByID(userId);
-            if (user != null && user.UserInfos.Any())
-            {
-                var userInfo = user.UserInfos.First();
-                userInfo.PhoneNumber = phoneNumber;
-                UpdateUser(user);
-            }
-        }
-
-        public void UpdateUserDateOfBirth(int userId, DateTime dateOfBirth)
-        {
-            var user = GetUserByID(userId);
-            if (user != null && user.UserInfos.Any())
-            {
-                var userInfo = user.UserInfos.First();
-                userInfo.DateOfBirth = dateOfBirth;
-                UpdateUser(user);
-            }
-        }
-
-        public void UpdateUserGender(int userId, string gender)
-        {
-            var user = GetUserByID(userId);
-            if (user != null && user.UserInfos.Any())
-            {
-                var userInfo = user.UserInfos.First();
-                userInfo.Gender = gender;
-                UpdateUser(user);
-            }
-        }
-
-        public void UpdateUserEmail(int userId, string email)
-        {
-            var user = GetUserByID(userId);
-            if (user != null && user.UserInfos.Any())
-            {
-                var userInfo = user.UserInfos.First();
-                userInfo.Email = email;
-                UpdateUser(user);
-            }
-        }
-        public void UpdateUserInfo(int userId, UpdateUserInfoDto dto)
-        {
-            var user = GetUserByID(userId);
-            if (user != null && user.UserInfos.Any())
-            {
-                var userInfo = user.UserInfos.First();
-                userInfo.FullName = dto.FullName;
-                userInfo.PhoneNumber = dto.PhoneNumber;
-                userInfo.DateOfBirth = dto.DateOfBirth;
-                userInfo.Gender = dto.Gender;
-                userInfo.Email = dto.Email;
-                UpdateUser(user);
-            }
-        }
-        public void UpdateUserAvatar(int userId, string avatar)
-        {
-            var user = _context.Users.Include(u => u.UserInfos).FirstOrDefault(u => u.UserId == userId);
-            if (user != null && user.UserInfos.Any())
-            {
-                var userInfo = user.UserInfos.First();
-                userInfo.Avatar = avatar;
-                _context.SaveChanges();
-            }
         }
     }
 }

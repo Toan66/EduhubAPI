@@ -2,10 +2,10 @@ namespace EduhubAPI.Dtos
 {
     public class UpdateChapterOrderDto
     {
-        public List<ChapterOrder> ChaptersOrder { get; set; }
+        public List<ChapterOrderDto> ChaptersOrder { get; set; }
     }
-    
-    public class ChapterOrder
+
+    public class ChapterOrderDto
     {
         public int ChapterId { get; set; }
         public int NewOrder { get; set; }

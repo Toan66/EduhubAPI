@@ -101,33 +101,41 @@ namespace EduhubAPI.Controllers
 
             return Ok(chapterDetails);
         }
-        [HttpPost("UpdateOrder")]
-        public IActionResult UpdateChapterOrder([FromBody] UpdateChapterOrderDto updateOrderDto)
+
+        [HttpPut("Course/{courseId}/updateChapterOrder")]
+        public IActionResult UpdateChapterOrder(int courseId, [FromBody] UpdateChapterOrderDto updateOrderDto)
         {
             try
             {
                 if (updateOrderDto.ChaptersOrder == null || !updateOrderDto.ChaptersOrder.Any())
                 {
-                    return BadRequest("Danh sách chapter không hợp lệ.");
+                    return BadRequest("Invalid chapter list.");
+                }
+
+                var courseChapters = _chapterRepository.GetChaptersByCourseId(courseId);
+                if (courseChapters == null || !courseChapters.Any())
+                {
+                    return NotFound($"No chapters found for course ID: {courseId}.");
                 }
 
                 foreach (var chapterOrder in updateOrderDto.ChaptersOrder)
                 {
-                    var chapter = _chapterRepository.GetChapterById(chapterOrder.ChapterId);
+                    var chapter = courseChapters.FirstOrDefault(c => c.ChapterId == chapterOrder.ChapterId);
                     if (chapter == null)
                     {
-                        return NotFound($"Không tìm thấy chapter với ID: {chapterOrder.ChapterId}");
+                        return NotFound($"Chapter with ID: {chapterOrder.ChapterId} not found in course ID: {courseId}.");
                     }
                     chapter.ChapterOrder = chapterOrder.NewOrder;
                     _chapterRepository.UpdateChapter(chapter);
                 }
 
-                return Ok("Thứ tự chapter đã được cập nhật thành công.");
+                return Ok("Chapter order updated successfully for course ID: " + courseId);
             }
             catch (Exception e)
             {
                 return BadRequest(e.Message);
             }
         }
+
     }
 }
