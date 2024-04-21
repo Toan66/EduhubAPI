@@ -24,6 +24,12 @@ namespace EduhubAPI.Controllers
             var courses = _courseRepository.GetAllCourses().Where(x => x.ApprovalStatus == true);
             return Ok(courses);
         }
+        [HttpGet("category")]
+        public IActionResult GetCategory()
+        {
+            var courses = _courseRepository.GetAllCoursesCategory();
+            return Ok(courses);
+        }
         [HttpGet("{id}")]
         public IActionResult GetCourseById(int id)
         {

@@ -13,6 +13,10 @@ namespace EduhubAPI.Repositories
         {
             return _context.Set<Course>().ToList();
         }
+        public IEnumerable<CourseCategory> GetAllCoursesCategory()
+        {
+            return _context.Set<CourseCategory>().ToList();
+        }
 
         public Course AddCourse(Course course)
         {
@@ -20,6 +24,7 @@ namespace EduhubAPI.Repositories
             _context.SaveChanges();
             return course;
         }
+
 
         public Course GetCourseById(int courseId)
         {
