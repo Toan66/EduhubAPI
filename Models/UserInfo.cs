@@ -13,6 +13,8 @@ namespace EduhubAPI.Models
         public string Gender { get; set; } = null!;
         public string Email { get; set; } = null!;
         public string? Avatar { get; set; }
+        public string? UserDescription { get; set; }
+        public string? UserAddress { get; set; }
 
         public virtual User User { get; set; } = null!;
     }

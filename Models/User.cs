@@ -13,6 +13,7 @@ namespace EduhubAPI.Models
             Reviews = new HashSet<Review>();
             StudentLessons = new HashSet<StudentLesson>();
             StudentTestAttempts = new HashSet<StudentTestAttempt>();
+            UserCurrencies = new HashSet<UserCurrency>();
             UserInfos = new HashSet<UserInfo>();
         }
 
@@ -27,6 +28,7 @@ namespace EduhubAPI.Models
         public virtual ICollection<Review> Reviews { get; set; }
         public virtual ICollection<StudentLesson> StudentLessons { get; set; }
         public virtual ICollection<StudentTestAttempt> StudentTestAttempts { get; set; }
+        public virtual ICollection<UserCurrency> UserCurrencies { get; set; }
         public virtual ICollection<UserInfo> UserInfos { get; set; }
     }
 }

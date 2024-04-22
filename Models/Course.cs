@@ -20,8 +20,12 @@ namespace EduhubAPI.Models
         public int CategoryId { get; set; }
         public string? FeatureImage { get; set; }
         public decimal? AverageRating { get; set; }
+        public int? CourseLevelId { get; set; }
+        public int? CoursePrice { get; set; }
+        public int? CourseEarn { get; set; }
 
         public virtual CourseCategory Category { get; set; } = null!;
+        public virtual CourseLevel? CourseLevel { get; set; }
         public virtual User Teacher { get; set; } = null!;
         public virtual ICollection<Chapter> Chapters { get; set; }
         public virtual ICollection<Enrollment> Enrollments { get; set; }
