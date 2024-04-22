@@ -37,5 +37,13 @@ namespace EduhubAPI.Dtos
     {
         public string Avatar { get; set; }
     }
+    public class UpdateUserAddressDto
+    {
+        public string? UserAddress { get; set; }
+    }
+    public class UpdateUserDescriptionDto
+    {
+        public string? UserDescription { get; set; }
+    }
 
 }

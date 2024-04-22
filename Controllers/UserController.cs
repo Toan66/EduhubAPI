@@ -274,5 +274,64 @@ namespace EduhubAPI.Controllers
             }
         }
 
+        [HttpPut("updateAddress")]
+        public IActionResult UpdateUserAddress([FromBody] UpdateUserAddressDto dto)
+        {
+            try
+            {
+                var jwt = Request.Cookies["jwt"];
+                if (string.IsNullOrEmpty(jwt))
+                {
+                    return Unauthorized();
+                }
+                var token = _jwtService.Verify(jwt);
+                int userId = int.Parse(token.Issuer);
+
+                var userInfo = _context.GetUserInfoByID(userId);
+                if (userInfo == null)
+                {
+                    return NotFound("User not found.");
+                }
+
+                userInfo.UserAddress = dto.UserAddress;
+                _context.UpdateUserInfo(userInfo);
+
+                return Ok("User avatar updated successfully.");
+            }
+            catch (Exception)
+            {
+                return Unauthorized();
+            }
+        }
+
+        [HttpPut("updateDescription")]
+        public IActionResult UpdateUserAddress([FromBody] UpdateUserDescriptionDto dto)
+        {
+            try
+            {
+                var jwt = Request.Cookies["jwt"];
+                if (string.IsNullOrEmpty(jwt))
+                {
+                    return Unauthorized();
+                }
+                var token = _jwtService.Verify(jwt);
+                int userId = int.Parse(token.Issuer);
+
+                var userInfo = _context.GetUserInfoByID(userId);
+                if (userInfo == null)
+                {
+                    return NotFound("User not found.");
+                }
+
+                userInfo.UserDescription = dto.UserDescription;
+                _context.UpdateUserInfo(userInfo);
+
+                return Ok("User avatar updated successfully.");
+            }
+            catch (Exception)
+            {
+                return Unauthorized();
+            }
+        }
     }
 }

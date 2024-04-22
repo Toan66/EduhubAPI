@@ -65,11 +65,11 @@ namespace EduhubAPI.Repositories
         {
             var userDetails = _context.Users
                 .Where(u => u.UserId == userId)
-                .Select(u => new
+                .Select(u => new 
                 {
                     UserId = u.UserId,
                     Username = u.Username,
-                    UserType = u.UserType.UserTypeName, // Giả sử bạn muốn hiển thị tên loại người dùng
+                    UserType = u.UserType.UserTypeName, 
                     UserInfo = u.UserInfos.Select(ui => new
                     {
                         FullName = ui.FullName,
@@ -78,7 +78,9 @@ namespace EduhubAPI.Repositories
                         Gender = ui.Gender,
                         PhoneNumber = ui.PhoneNumber,
                         Avatar = ui.Avatar,
-                    }).FirstOrDefault() // Sử dụng FirstOrDefault vì mỗi User có thể chỉ có một UserInfo
+                        UserAddress = ui.UserAddress,
+                        UserDescription = ui.UserDescription
+                    }).FirstOrDefault() 
                 }).FirstOrDefault();
 
             return userDetails;
