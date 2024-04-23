@@ -23,4 +23,18 @@ namespace EduhubAPI.Dtos
     {
         public int CategoryId { get; set; }
     }
+    public class UpdateCourseLevelDto
+    {
+        public int CourseLevelId { get; set; }
+    }
+
+    public class UpdateCoursePriceDto
+    {
+        public int CoursePrice { get; set; }
+    }
+
+    public class UpdateCourseEarnDto
+    {
+        public int CourseEarn { get; set; }
+    }
 }

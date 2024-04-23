@@ -18,6 +18,11 @@ namespace EduhubAPI.Repositories
             return _context.Set<CourseCategory>().ToList();
         }
 
+        public IEnumerable<CourseLevel> GetAllCoursesLevel()
+        {
+            return _context.Set<CourseLevel>().ToList();
+        }
+
         public Course AddCourse(Course course)
         {
             _context.Courses.Add(course);
@@ -76,7 +81,9 @@ namespace EduhubAPI.Repositories
                     ApprovalStatus = c.ApprovalStatus,
                     CategoryId = c.CategoryId,
                     FeatureImage = c.FeatureImage,
-                    
+                    CourseLevelId = c.CourseLevelId,
+                    CoursePrice = c.CoursePrice,
+                    CourseEarn = c.CourseEarn,
                     Chapters = c.Chapters.OrderBy(ch => ch.ChapterOrder).Select(ch => new Chapter
                     {
                         ChapterId = ch.ChapterId,

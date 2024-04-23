@@ -30,6 +30,13 @@ namespace EduhubAPI.Controllers
             var courses = _courseRepository.GetAllCoursesCategory();
             return Ok(courses);
         }
+        [HttpGet("level")]
+        public IActionResult GetLevel()
+        {
+            var courses = _courseRepository.GetAllCoursesLevel();
+            return Ok(courses);
+        }
+
         [HttpGet("{id}")]
         public IActionResult GetCourseById(int id)
         {
@@ -60,7 +67,10 @@ namespace EduhubAPI.Controllers
                     CourseDescription = addCourse.CourseDescription,
                     ApprovalStatus = false,
                     CategoryId = addCourse.CategoryId,
-                    FeatureImage = addCourse.FeatureImage
+                    FeatureImage = addCourse.FeatureImage,
+                    CourseLevelId = addCourse.CourseLevelId,
+                    CourseEarn = addCourse.CourseEarn,
+                    CoursePrice = addCourse.CoursePrice
                 };
 
                 return Ok(_courseRepository.AddCourse(course));
@@ -211,8 +221,100 @@ namespace EduhubAPI.Controllers
             {
                 return BadRequest(e.Message);
             }
-
-
+        }
+        [HttpPut("{id}/updateLevel")]
+        public IActionResult UpdateCourseLevel(int id, [FromBody] UpdateCourseLevelDto dto)
+        {
+            try
+            {
+                var jwt = Request.Cookies["jwt"];
+                if (string.IsNullOrEmpty(jwt))
+                {
+                    return Unauthorized();
+                }
+                var token = _jwtService.Verify(jwt);
+                int userId = int.Parse(token.Issuer);
+        
+                var course = _courseRepository.GetCourseById(id);
+                if (course == null)
+                {
+                    return NotFound("Khóa học không tồn tại.");
+                }
+                else if (course.TeacherId != userId)
+                {
+                    return Unauthorized("Bạn không có quyền cập nhật cấp độ của khóa học này.");
+                }
+                course.CourseLevelId = dto.CourseLevelId;
+                _courseRepository.UpdateCourse(course);
+                return Ok("Cấp độ khóa học đã được cập nhật.");
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+        [HttpPut("{id}/updateEarn")]
+        public IActionResult UpdateCourseEarn(int id, [FromBody] UpdateCourseEarnDto dto)
+        {
+            try
+            {
+                var jwt = Request.Cookies["jwt"];
+                if (string.IsNullOrEmpty(jwt))
+                {
+                    return Unauthorized();
+                }
+                var token = _jwtService.Verify(jwt);
+                int userId = int.Parse(token.Issuer);
+        
+                var course = _courseRepository.GetCourseById(id);
+                if (course == null)
+                {
+                    return NotFound("Khóa học không tồn tại.");
+                }
+                else if (course.TeacherId != userId)
+                {
+                    return Unauthorized("Bạn không có quyền cập nhật thu nhập từ khóa học này.");
+                }
+                course.CourseEarn = dto.CourseEarn;
+                _courseRepository.UpdateCourse(course);
+                return Ok("Thu nhập từ khóa học đã được cập nhật.");
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+        
+        [HttpPut("{id}/updatePrice")]
+        public IActionResult UpdateCoursePrice(int id, [FromBody] UpdateCoursePriceDto dto)
+        {
+            try
+            {
+                var jwt = Request.Cookies["jwt"];
+                if (string.IsNullOrEmpty(jwt))
+                {
+                    return Unauthorized();
+                }
+                var token = _jwtService.Verify(jwt);
+                int userId = int.Parse(token.Issuer);
+        
+                var course = _courseRepository.GetCourseById(id);
+                if (course == null)
+                {
+                    return NotFound("Khóa học không tồn tại.");
+                }
+                else if (course.TeacherId != userId)
+                {
+                    return Unauthorized("Bạn không có quyền cập nhật giá của khóa học này.");
+                }
+                course.CoursePrice = dto.CoursePrice;
+                _courseRepository.UpdateCourse(course);
+                return Ok("Giá khóa học đã được cập nhật.");
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
         [HttpDelete("{id}")]
         public IActionResult DeleteCourse(int id)
@@ -230,11 +332,11 @@ namespace EduhubAPI.Controllers
                 var course = _courseRepository.GetCourseById(id);
                 if (course == null)
                 {
-                    return NotFound("Khóa học không tồn tại.");
+                    return NotFound("Course does not exist.");
                 }
                 else if (course.TeacherId != userId)
                 {
-                    return Unauthorized("Bạn không có quyền cập nhật tên khóa học này.");
+                    return Unauthorized("You don't have permission to do this.");
                 }
                 _courseRepository.DeleteCourse(id);
                 return Ok();
@@ -285,9 +387,9 @@ namespace EduhubAPI.Controllers
                 return BadRequest(e.Message);
             }
 
-
-
         }
+
+
 
         [HttpGet("ByTeacher")]
         public IActionResult GetCoursesByTeacher()
