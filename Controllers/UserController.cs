@@ -67,6 +67,52 @@ namespace EduhubAPI.Controllers
             }
         }
 
+        [HttpGet("detail/edit")]
+        public IActionResult GetDetailEdit()
+        {
+            try
+            {
+                var jwt = Request.Cookies["jwt"];
+                if (string.IsNullOrEmpty(jwt))
+                {
+                    return Unauthorized();
+                }
+                var token = _jwtService.Verify(jwt);
+                int userId = int.Parse(token.Issuer);
+
+                var detail = _context.GetUserDetails(userId);
+                if (detail == null)
+                {
+                    return NotFound("Course doen't exist.");
+                }
+                else if (detail.UserId != userId)
+                {
+                    return Unauthorized("You don't have permission to do this.");
+                }
+                return Ok(detail);
+
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+
+        }
+
+        [HttpGet("{userId}/detail")]
+        public IActionResult GetFreeDetail(int userId)
+        {
+            try
+            {
+                var detail = _context.GetUserDetails(userId);
+                return Ok(detail);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         [HttpGet("name")]
         public IActionResult GetName()
         {
@@ -81,6 +127,28 @@ namespace EduhubAPI.Controllers
                 int userId = int.Parse(token.Issuer);
 
                 var name = _context.GetUserName(userId);
+                return Ok(name);
+            }
+            catch (Exception)
+            {
+                return Unauthorized();
+            }
+        }
+
+        [HttpGet("avatar")]
+        public IActionResult GetAvatar()
+        {
+            try
+            {
+                var jwt = Request.Cookies["jwt"];
+                if (string.IsNullOrEmpty(jwt))
+                {
+                    return Unauthorized();
+                }
+                var token = _jwtService.Verify(jwt);
+                int userId = int.Parse(token.Issuer);
+
+                var name = _context.GetUserAvatar(userId);
                 return Ok(name);
             }
             catch (Exception)

@@ -46,7 +46,8 @@ namespace EduhubAPI.Repositories
             return user;
         }
 
-        public UserInfo UpdateUserInfo(UserInfo userInfo){
+        public UserInfo UpdateUserInfo(UserInfo userInfo)
+        {
             _context.UserInfos.Update(userInfo);
             _context.SaveChanges();
             return userInfo;
@@ -61,16 +62,16 @@ namespace EduhubAPI.Repositories
                 _context.SaveChanges();
             }
         }
-        public object GetUserDetails(int userId)
+        public UserDetailsDto GetUserDetails(int userId)
         {
             var userDetails = _context.Users
                 .Where(u => u.UserId == userId)
-                .Select(u => new 
+                .Select(u => new UserDetailsDto
                 {
                     UserId = u.UserId,
                     Username = u.Username,
-                    UserType = u.UserType.UserTypeName, 
-                    UserInfo = u.UserInfos.Select(ui => new
+                    UserType = u.UserType.UserTypeName,
+                    UserInfo = u.UserInfos.Select(ui => new UserInfoDto
                     {
                         FullName = ui.FullName,
                         Email = ui.Email,
@@ -80,7 +81,7 @@ namespace EduhubAPI.Repositories
                         Avatar = ui.Avatar,
                         UserAddress = ui.UserAddress,
                         UserDescription = ui.UserDescription
-                    }).FirstOrDefault() 
+                    }).FirstOrDefault()
                 }).FirstOrDefault();
 
             return userDetails;
@@ -89,6 +90,11 @@ namespace EduhubAPI.Repositories
         {
             var user = _context.Users.Include(u => u.UserInfos).FirstOrDefault(u => u.UserId == userId);
             return user?.UserInfos?.Select(ui => ui.FullName).FirstOrDefault() ?? string.Empty;
+        }
+        public string GetUserAvatar(int userId)
+        {
+            var user = _context.Users.Include(u => u.UserInfos).FirstOrDefault(u => u.UserId == userId);
+            return user?.UserInfos?.Select(ui => ui.Avatar).FirstOrDefault() ?? string.Empty;
         }
     }
 }
