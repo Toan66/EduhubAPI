@@ -75,6 +75,7 @@ namespace EduhubAPI.Repositories
                 {
                     ChapterId = ch.ChapterId,
                     ChapterTitle = ch.ChapterTitle,
+                    ChapterDescription = ch.ChapterDescription,
                     CourseId = ch.CourseId,
                     Lessons = ch.Lessons.Select(l => new Lesson
                     {

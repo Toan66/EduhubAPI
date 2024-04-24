@@ -77,15 +77,18 @@ namespace EduhubAPI.Controllers
         }
         // Cập nhật Lesson
         [HttpPut("{id}")]
-        public IActionResult UpdateLesson(int id, [FromBody] Lesson lesson)
+        public IActionResult UpdateLesson(int id, [FromBody] UpdateLessonDto dto)
         {
-            if (id != lesson.LessonId)
-            {
-                return BadRequest("ID không khớp.");
-            }
-
             try
             {
+                var lesson = _lessonRepository.GetLessonById(id);
+                if (lesson == null) {  return NotFound(); }
+                else
+                {
+                    lesson.LessonTitle = dto.LessonTitle;
+                    lesson.LessonContent = dto.LessonContent;
+                    lesson.Video = dto.Video;
+                }
                 var updatedLesson = _lessonRepository.UpdateLesson(lesson);
                 return Ok(updatedLesson);
             }

@@ -86,7 +86,7 @@ namespace EduhubAPI.Controllers
             var chapters = _chapterRepository.GetChaptersByCourseId(courseId);
             if (chapters == null || !chapters.Any())
             {
-                return NotFound("Không tìm thấy chapter nào cho khóa học này.");
+                return NotFound("Chapter not found!");
             }
             return Ok(chapters);
         }
@@ -96,7 +96,7 @@ namespace EduhubAPI.Controllers
             var chapterDetails = _chapterRepository.GetChapterDetails(id);
             if (chapterDetails == null)
             {
-                return NotFound("Không tìm thấy chương.");
+                return NotFound("Chapter not found!");
             }
 
             return Ok(chapterDetails);
@@ -136,6 +136,55 @@ namespace EduhubAPI.Controllers
                 return BadRequest(e.Message);
             }
         }
+        [HttpPut("{chapterId}/updateChapterDescription")]
+        public IActionResult UpdateChapterDescription(int chapterId, [FromBody] UpdateChapterDescriptionDto dto)
+        {
+            try
+            {
+                //var jwt = Request.Cookies["jwt"];
+                //if (string.IsNullOrEmpty(jwt))
+                //{
+                //    return Unauthorized();
+                //}
+                //var token = _jwtService.Verify(jwt);
+                //int userId = int.Parse(token.Issuer);
 
+                var chapter = _chapterRepository.GetChapterById(chapterId);
+                if (chapter == null)
+                {
+                    return NotFound("Chapter dont exist!");
+                }
+                //else if (chapter.CourseId != userId)
+                //{
+                //    return Unauthorized("You dont have permission to do this!");
+                //}
+                chapter.ChapterDescription = dto.ChapterDescription;
+                _chapterRepository.UpdateChapter(chapter);
+                return Ok("Updated!");
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+        [HttpPut("{chapterId}/updateTitle")]
+        public IActionResult UpdateChapterTitle(int chapterId, [FromBody] UpdateChapterTitleDto dto)
+        {
+            try
+            {
+                var chapter = _chapterRepository.GetChapterById(chapterId);
+                if (chapter == null)
+                {
+                    return NotFound("Chapter dont exist!");
+                }
+                chapter.ChapterTitle = dto.ChapterTitle;
+                _chapterRepository.UpdateChapter(chapter);
+                return Ok("Updated!");
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
 }
