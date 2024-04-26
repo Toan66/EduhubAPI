@@ -9,6 +9,7 @@ namespace EduhubAPI.Models
         public int QuestionId { get; set; }
         public string AnswerContent { get; set; } = null!;
         public bool IsCorrect { get; set; }
+        public int? AnswerPosition { get; set; }
 
         public virtual Question Question { get; set; } = null!;
     }

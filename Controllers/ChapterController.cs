@@ -13,11 +13,13 @@ namespace EduhubAPI.Controllers
     public class ChapterController : ControllerBase
     {
         private readonly ChapterRepository _chapterRepository;
+        private readonly CourseRepository _courseRepository;
         private readonly JwtService _jwtService;
 
-        public ChapterController(ChapterRepository chapterRepository, JwtService jwtService)
+        public ChapterController(ChapterRepository chapterRepository, JwtService jwtService, CourseRepository courseRepository)
         {
             _chapterRepository = chapterRepository;
+            _courseRepository = courseRepository;
             _jwtService = jwtService;
         }
 
@@ -93,6 +95,7 @@ namespace EduhubAPI.Controllers
         [HttpGet("{id}/details")]
         public IActionResult GetChapterDetails(int id)
         {
+
             var chapterDetails = _chapterRepository.GetChapterDetails(id);
             if (chapterDetails == null)
             {
@@ -101,6 +104,34 @@ namespace EduhubAPI.Controllers
 
             return Ok(chapterDetails);
         }
+
+        [HttpGet("{id}/details/edit")]
+        public IActionResult GetChapterDetailsEdit(int id)
+        {
+            var jwt = Request.Cookies["jwt"];
+            if (string.IsNullOrEmpty(jwt))
+            {
+                return Unauthorized();
+            }
+            var token = _jwtService.Verify(jwt);
+            int userId = int.Parse(token.Issuer);
+
+            var chapterDetails = _chapterRepository.GetChapterDetails(id);
+            var course = _courseRepository.GetCourseById(chapterDetails.CourseId);
+
+            if (userId != course.TeacherId)
+            {
+                return Unauthorized("You don't have permission to Edit this Chapter!");
+            }
+            if (chapterDetails == null)
+            {
+                return NotFound("Chapter not found!");
+            }
+
+            return Ok(chapterDetails);
+        }
+
+
 
         [HttpPut("Course/{courseId}/updateChapterOrder")]
         public IActionResult UpdateChapterOrder(int courseId, [FromBody] UpdateChapterOrderDto updateOrderDto)

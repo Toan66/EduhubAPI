@@ -13,6 +13,7 @@ namespace EduhubAPI.Models
         public int QuestionId { get; set; }
         public int TestId { get; set; }
         public string QuestionContent { get; set; } = null!;
+        public int? QuestionPosition { get; set; }
 
         public virtual Test Test { get; set; } = null!;
         public virtual ICollection<Answer> Answers { get; set; }
