@@ -57,7 +57,6 @@ namespace EduhubAPI.Controllers
             return Ok(chapter);
         }
 
-        // Cập nhật thông tin của một chương
         [HttpPut("{id}")]
         public IActionResult UpdateChapter(int id, [FromBody] Chapter chapter)
         {
@@ -74,12 +73,26 @@ namespace EduhubAPI.Controllers
             return Ok(updatedChapter);
         }
 
-        // Xóa một chương
         [HttpDelete("{id}")]
         public IActionResult DeleteChapter(int id)
         {
-            _chapterRepository.DeleteChapter(id);
-            return NoContent();
+            try
+            {
+                _chapterRepository.DeleteChapter(id);
+                return Ok($"Chapter with ID: {id} has been successfully deleted.");
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest($"Error: {ex.Message}");
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception e)
+            {
+                return BadRequest($"An error occurred while deleting the chapter: {e.Message}");
+            }
         }
 
         [HttpGet("GetByCourse/{courseId}")]

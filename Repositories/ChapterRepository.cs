@@ -1,4 +1,5 @@
 ﻿using EduhubAPI.Models;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace EduhubAPI.Repositories
@@ -36,7 +37,7 @@ namespace EduhubAPI.Repositories
         {
             return _context.Chapters
                 .Where(c => c.CourseId == courseId)
-                .OrderBy(c => c.ChapterOrder) 
+                .OrderBy(c => c.ChapterOrder)
                 .ToList();
         }
 
@@ -47,25 +48,55 @@ namespace EduhubAPI.Repositories
             return chapter;
         }
 
-        // Delete a chapter
-        public void DeleteChapter(int chapterId)
+        //Delete a chapter
+         public void DeleteChapter(int chapterId)
         {
-            var chapterToDelete = _context.Chapters.Find(chapterId);
-            if (chapterToDelete != null)
+            var chapterToDelete = _context.Chapters.Include(c => c.Lessons).Include(c => c.Tests).FirstOrDefault(c => c.ChapterId == chapterId);
+            if (chapterToDelete == null)
             {
-                var affectedChapters = _context.Chapters
-                    .Where(c => c.CourseId == chapterToDelete.CourseId && c.ChapterOrder > chapterToDelete.ChapterOrder)
-                    .ToList();
-
-                foreach (var chapter in affectedChapters)
-                {
-                    chapter.ChapterOrder--;
-                }
-
-                _context.Chapters.Remove(chapterToDelete);
-                _context.SaveChanges();
+                throw new ArgumentException($"Chapter with ID: {chapterId} does not exist.");
             }
+
+            if (chapterToDelete.Lessons.Any() || chapterToDelete.Tests.Any())
+            {
+                throw new InvalidOperationException($"Cannot delete chapter with ID: {chapterId} because it contains lessons or tests.");
+            }
+
+            var affectedChapters = _context.Chapters
+                .Where(c => c.CourseId == chapterToDelete.CourseId && c.ChapterOrder > chapterToDelete.ChapterOrder)
+                .ToList();
+
+            foreach (var chapter in affectedChapters)
+            {
+                chapter.ChapterOrder--;
+            }
+
+            _context.Chapters.Remove(chapterToDelete);
+            _context.SaveChanges();
         }
+
+        //public void DeleteChapter(int chapterId)
+        //{
+        //    var chapterToDelete = _context.Chapters
+        //        .Include(c => c.Lessons)
+        //        .Include(c => c.Tests)
+        //        .FirstOrDefault(c => c.ChapterId == chapterId);
+
+        //    if (chapterToDelete == null)
+        //    {
+        //        throw new ArgumentException($"Chapter with ID: {chapterId} does not exist.");
+        //    }
+
+        //    // Xóa tất cả Lessons của Chapter
+        //    _context.Lessons.RemoveRange(chapterToDelete.Lessons);
+
+        //    // Xóa tất cả Tests của Chapter
+        //    _context.Tests.RemoveRange(chapterToDelete.Tests);
+
+        //    // Xóa Chapter sau khi đã xóa Lessons và Tests liên quan
+        //    _context.Chapters.Remove(chapterToDelete);
+        //    _context.SaveChanges();
+        //}
 
         public Chapter GetChapterDetails(int chapterId)
         {
