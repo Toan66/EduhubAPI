@@ -1,4 +1,5 @@
 ﻿using EduhubAPI.Models;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace EduhubAPI.Repositories
@@ -144,6 +145,16 @@ namespace EduhubAPI.Repositories
                 return true;
             }
             return false;
+        }
+        public Test GetTestDetails(int testId)
+        {
+            // Assuming you have navigation properties set up correctly in your models
+            // This will fetch a test and include its related questions and answers
+            return _context.Tests
+                .Where(t => t.TestId == testId)
+                .Include(t => t.Questions)
+                    .ThenInclude(q => q.Answers)
+                .FirstOrDefault();
         }
     }
 }

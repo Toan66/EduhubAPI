@@ -11,7 +11,6 @@ namespace EduhubAPI.Models
         public decimal? Rating { get; set; }
         public string? Comment { get; set; }
         public DateTime? ReviewDate { get; set; }
-
         public virtual Course? Course { get; set; }
         public virtual User? User { get; set; }
     }

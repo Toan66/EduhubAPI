@@ -17,7 +17,7 @@ namespace EduhubAPI.Controllers
         }
         // Add a new test
         [HttpPost("Chapter/{chapterId}/addTest")]
-        public IActionResult AddTest(int chapterId, AddTestDto dto)
+        public IActionResult AddTest(int chapterId, [FromBody] AddTestDto dto)
         {
             try
             {
@@ -25,9 +25,37 @@ namespace EduhubAPI.Controllers
                 {
                     TestTitle = dto.TestTitle,
                     TestDescription = dto.TestDescription,
-                    ChapterId = chapterId
+                    ChapterId = chapterId,
+                    Questions = new List<Question>()
                 };
-                return Ok(_repository.AddTest(test));
+
+                int questionPosition = 1; // Start position for questions
+                foreach (var questionDto in dto.Questions)
+                {
+                    var question = new Question
+                    {
+                        QuestionContent = questionDto.QuestionText,
+                        QuestionPosition = questionPosition++,
+                        Answers = new List<Answer>()
+                    };
+
+                    int answerPosition = 1; // Start position for answers
+                    foreach (var answerDto in questionDto.Answers)
+                    {
+                        question.Answers.Add(new Answer
+                        {
+                            AnswerContent = answerDto.AnswerText,
+                            IsCorrect = answerDto.IsCorrect,
+                            AnswerPosition = answerPosition++
+                        });
+                    }
+
+                    test.Questions.Add(question);
+                }
+
+                _repository.AddTest(test); // Assuming this method handles saving the test and its related entities correctly
+
+                return Ok(); // Or return a more appropriate response as needed
             }
             catch (Exception e)
             {
@@ -46,7 +74,7 @@ namespace EduhubAPI.Controllers
             }
             return Ok(test);
         }
-        
+
         // Update a test
         [HttpPut("{id}")]
         public IActionResult UpdateTest(int id, [FromBody] Test test)
@@ -58,7 +86,7 @@ namespace EduhubAPI.Controllers
             }
             return Ok(updatedTest);
         }
-        
+
         // Delete a test
         [HttpDelete("{id}")]
         public IActionResult DeleteTest(int id)
@@ -70,7 +98,7 @@ namespace EduhubAPI.Controllers
             }
             return NoContent();
         }
-        
+
         // Add a question to a test
         [HttpPost("{testId}/questions")]
         public IActionResult AddQuestionToTest(int testId, [FromBody] Question question)
@@ -78,7 +106,7 @@ namespace EduhubAPI.Controllers
             var addedQuestion = _repository.AddQuestionToTest(testId, question);
             return Ok(addedQuestion);
         }
-        
+
         // Get questions by test ID
         [HttpGet("{testId}/questions")]
         public IActionResult GetQuestionsByTestId(int testId)
@@ -86,7 +114,7 @@ namespace EduhubAPI.Controllers
             var questions = _repository.GetQuestionsByTestId(testId);
             return Ok(questions);
         }
-        
+
         // Add an answer to a question
         [HttpPost("questions/{questionId}/answers")]
         public IActionResult AddAnswerToQuestion(int questionId, [FromBody] Answer answer)
@@ -94,13 +122,44 @@ namespace EduhubAPI.Controllers
             var addedAnswer = _repository.AddAnswerToQuestion(questionId, answer);
             return Ok(addedAnswer);
         }
-        
+
         // Get answers by question ID
         [HttpGet("questions/{questionId}/answers")]
         public IActionResult GetAnswersByQuestionId(int questionId)
         {
             var answers = _repository.GetAnswersByQuestionId(questionId);
             return Ok(answers);
+        }
+        [HttpGet("{id}/details")]
+        public IActionResult GetTestDetails(int id)
+        {
+            var test = _repository.GetTestDetails(id);
+            if (test == null)
+            {
+                return NotFound("Test not found.");
+            }
+
+            var testDetailDto = new TestDetailDto
+            {
+                TestId = test.TestId,
+                TestTitle = test.TestTitle,
+                TestDescription = test.TestDescription,
+                Questions = test.Questions.Select(q => new QuestionDetailDto
+                {
+                    QuestionId = q.QuestionId,
+                    QuestionContent = q.QuestionContent,
+                    QuestionPosition = q.QuestionPosition ?? 1,
+                    Answers = q.Answers.Select(a => new AnswerDetailDto
+                    {
+                        AnswerId = a.AnswerId,
+                        AnswerContent = a.AnswerContent,
+                        IsCorrect = a.IsCorrect,
+                        AnswerPosition = a.AnswerPosition ?? 1
+                    }).ToList()
+                }).ToList()
+            };
+
+            return Ok(testDetailDto);
         }
     }
 }

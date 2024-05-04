@@ -419,6 +419,28 @@ namespace EduhubAPI.Controllers
             }
         }
 
-        
+        [HttpGet("{id}/reviews")]
+        public IActionResult GetCourseReviews(int id)
+        {
+            var reviews = _courseRepository.GetCourseReviewsWithUserInfo(id);
+            if (reviews == null || !reviews.Any())
+            {
+                return NotFound("Not found.");
+            }
+            return Ok(reviews);
+        }
+
+
+
+        [HttpGet("{id}/teacher")]
+        public IActionResult GetTeacherByCourseId(int id)
+        {
+            var teacher = _courseRepository.GetTeacherByCourseId(id);
+            if (teacher == null)
+            {
+                return NotFound("Not found.");
+            }
+            return Ok(teacher);
+        }
     }
 }
