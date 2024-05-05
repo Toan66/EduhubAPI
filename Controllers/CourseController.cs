@@ -386,13 +386,10 @@ namespace EduhubAPI.Controllers
             {
                 return BadRequest(e.Message);
             }
-
         }
 
-
-
         [HttpGet("ByTeacher")]
-        public IActionResult GetCoursesByTeacher()
+        public IActionResult GetCoursesByTeacherSercure()
         {
             try
             {
@@ -419,6 +416,13 @@ namespace EduhubAPI.Controllers
             }
         }
 
+        [HttpGet("{id}/TeacherCourses")]
+        public IActionResult GetCoursesByTeacher(int id)
+        {
+            var courses = _courseRepository.GetCoursesByTeacherId(id);
+            return Ok(courses);
+        }
+
         [HttpGet("{id}/reviews")]
         public IActionResult GetCourseReviews(int id)
         {
@@ -429,8 +433,6 @@ namespace EduhubAPI.Controllers
             }
             return Ok(reviews);
         }
-
-
 
         [HttpGet("{id}/teacher")]
         public IActionResult GetTeacherByCourseId(int id)

@@ -101,6 +101,12 @@ namespace EduhubAPI.Repositories
                             ChapterId = l.ChapterId,
                             LessonContent = l.LessonContent,
                             Video = l.Video
+                        }).ToList(),
+                        Tests = ch.Tests.Select(t => new Test
+                        {
+                            TestId = t.TestId,
+                            TestTitle = t.TestTitle,
+                            TestDescription = t.TestDescription
                         }).ToList()
                     }).ToList()
                 }).FirstOrDefault();
