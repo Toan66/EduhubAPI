@@ -234,7 +234,7 @@ namespace EduhubAPI.Controllers
                 }
                 var token = _jwtService.Verify(jwt);
                 int userId = int.Parse(token.Issuer);
-        
+
                 var course = _courseRepository.GetCourseById(id);
                 if (course == null)
                 {
@@ -265,7 +265,7 @@ namespace EduhubAPI.Controllers
                 }
                 var token = _jwtService.Verify(jwt);
                 int userId = int.Parse(token.Issuer);
-        
+
                 var course = _courseRepository.GetCourseById(id);
                 if (course == null)
                 {
@@ -284,7 +284,7 @@ namespace EduhubAPI.Controllers
                 return BadRequest(e.Message);
             }
         }
-        
+
         [HttpPut("{id}/updatePrice")]
         public IActionResult UpdateCoursePrice(int id, [FromBody] UpdateCoursePriceDto dto)
         {
@@ -297,7 +297,7 @@ namespace EduhubAPI.Controllers
                 }
                 var token = _jwtService.Verify(jwt);
                 int userId = int.Parse(token.Issuer);
-        
+
                 var course = _courseRepository.GetCourseById(id);
                 if (course == null)
                 {
@@ -354,9 +354,25 @@ namespace EduhubAPI.Controllers
             {
                 return NotFound("Không tìm thấy khóa học.");
             }
+            if(courseDetails.ApprovalStatus != true)
+            {
+                return Unauthorized("Course Doesn't Exist!!!");
+            }
 
             return Ok(courseDetails);
         }
+
+        [HttpGet("{id}/preview/details")]
+        public IActionResult GetCourseDetailsPreview(int id)
+        {
+            var courseDetails = _courseRepository.GetCourseDetails(id);
+            if (courseDetails == null)
+            {
+                return NotFound("Không tìm thấy khóa học.");
+            }
+            return Ok(courseDetails);
+        }
+
         [HttpGet("{id}/details/edit")]
         public IActionResult GetCourseDetailEdit(int id)
         {
@@ -419,8 +435,26 @@ namespace EduhubAPI.Controllers
         [HttpGet("{id}/TeacherCourses")]
         public IActionResult GetCoursesByTeacher(int id)
         {
-            var courses = _courseRepository.GetCoursesByTeacherId(id);
+            var courses = _courseRepository.GetCoursesByTeacherIdWithTeacherInfo(id);
             return Ok(courses);
+        }
+        [HttpGet("ByTeacher/{teacherId}/reviews")]
+        public IActionResult GetCourseReviewsByTeacher(int teacherId)
+        {
+            try
+            {
+                var reviews = _courseRepository.GetCourseReviewsByTeacherId(teacherId);
+                if (reviews == null || !reviews.Any())
+                {
+                    return NotFound("No reviews found for the courses taught by the specified teacher.");
+                }
+
+                return Ok(reviews);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
 
         [HttpGet("{id}/reviews")]
