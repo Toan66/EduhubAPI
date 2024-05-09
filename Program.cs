@@ -1,6 +1,8 @@
 ﻿using EduhubAPI.Helpers;
 using EduhubAPI.Models;
+using EduhubAPI.Models.Momo;
 using EduhubAPI.Repositories;
+using EduhubAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -23,6 +25,10 @@ namespace EduhubAPI
 
             builder.Services.AddControllers();
 
+            builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("MomoAPI"));
+            builder.Services.AddScoped<IMomoService, MomoService>();
+
+
             // Authentication
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
@@ -42,6 +48,7 @@ namespace EduhubAPI
             builder.Services.AddScoped<ChapterRepository>();
             builder.Services.AddScoped<LessonRepository>();
             builder.Services.AddScoped<TestRepository>();
+            builder.Services.AddScoped<PaymentRepository>();
 
             builder.Services.AddScoped<JwtService>();
 

@@ -354,7 +354,7 @@ namespace EduhubAPI.Controllers
             {
                 return NotFound("Không tìm thấy khóa học.");
             }
-            if(courseDetails.ApprovalStatus != true)
+            if (courseDetails.ApprovalStatus != true)
             {
                 return Unauthorized("Course Doesn't Exist!!!");
             }
@@ -477,6 +477,78 @@ namespace EduhubAPI.Controllers
                 return NotFound("Not found.");
             }
             return Ok(teacher);
+        }
+
+        [HttpGet("UnapproveCourses")]
+        public IActionResult GetUnapproveCourses()
+        {
+            var courses = _courseRepository.GetAllUnapproveCourses();
+            if (courses == null)
+            {
+                return NotFound("Not found.");
+            }
+            return Ok(courses);
+        }
+
+        [HttpPost("{id}/approve")]
+        public IActionResult ApproveCourse(int id)
+        {
+            var course = _courseRepository.GetCourseById(id);
+            if (course == null)
+            {
+                return NotFound("Not found.");
+            }
+            course.ApprovalStatus = true;
+
+            _courseRepository.UpdateCourse(course);
+
+            return Ok();
+        }
+
+        [HttpPost("enroll")]
+        public IActionResult EnrollInCourse([FromBody] EnrollInCourseDto dto)
+        {
+            try
+            {
+                var jwt = Request.Cookies["jwt"];
+                if (string.IsNullOrEmpty(jwt))
+                {
+                    return Unauthorized("No token provided.");
+                }
+
+                var token = _jwtService.Verify(jwt);
+                int userId = int.Parse(token.Issuer);
+
+                var enrollment = _courseRepository.EnrollInCourse(userId, dto.CourseId);
+                return Ok(new { message = "Enrollment successful", enrollment });
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("{courseId}/isEnrolled")]
+        public IActionResult IsUserEnrolled(int courseId)
+        {
+            try
+            {
+                var jwt = Request.Cookies["jwt"];
+                if (string.IsNullOrEmpty(jwt))
+                {
+                    return Unauthorized("No token provided.");
+                }
+
+                var token = _jwtService.Verify(jwt);
+                int userId = int.Parse(token.Issuer);
+
+                bool isEnrolled = _courseRepository.IsUserEnrolledInCourse(userId, courseId);
+                return Ok(new { isEnrolled = isEnrolled });
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
     }
 }

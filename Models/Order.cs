@@ -3,16 +3,22 @@ using System.Collections.Generic;
 
 namespace EduhubAPI.Models
 {
-    public partial class Enrollment
+    public partial class Order
     {
-        public int EnrollmentId { get; set; }
+        public Order()
+        {
+            Payments = new HashSet<Payment>();
+        }
+
+        public int OrderId { get; set; }
         public int UserId { get; set; }
         public int CourseId { get; set; }
-        public DateTime EnrollmentDate { get; set; }
-        public decimal? CompletionPercentage { get; set; }
+        public decimal Amount { get; set; }
+        public DateTime OrderDate { get; set; }
         public string? Status { get; set; }
 
         public virtual Course Course { get; set; } = null!;
         public virtual User User { get; set; } = null!;
+        public virtual ICollection<Payment> Payments { get; set; }
     }
 }

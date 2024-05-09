@@ -14,6 +14,12 @@ namespace EduhubAPI.Repositories
         {
             return _context.Set<Course>().ToList();
         }
+
+        public IEnumerable<Course> GetAllUnapproveCourses()
+        {
+            return _context.Set<Course>().Where(c => c.ApprovalStatus == false).ToList();
+        }
+
         public IEnumerable<CourseCategory> GetAllCoursesCategory()
         {
             return _context.Set<CourseCategory>().ToList();
@@ -144,7 +150,7 @@ namespace EduhubAPI.Repositories
                         }).ToList()
                     }).ToList()
                 }).FirstOrDefault();
-            
+
             return course;
         }
 
@@ -239,6 +245,32 @@ namespace EduhubAPI.Repositories
                 }
             }).ToList();
             return reviewsWithUserInfo;
+        }
+
+        //public Course ApproveCourse(int courseId)
+        //{
+        //    var course = _context.Courses.FirstOrDefault(c => c.CourseId == courseId);
+
+        //}
+
+        public Enrollment EnrollInCourse(int userId, int courseId)
+        {
+            var enrollment = new Enrollment
+            {
+                UserId = userId,
+                CourseId = courseId,
+                EnrollmentDate = DateTime.Now
+            };
+
+            _context.Enrollments.Add(enrollment);
+            _context.SaveChanges();
+
+            return enrollment;
+        }
+
+        public bool IsUserEnrolledInCourse(int userId, int courseId)
+        {
+            return _context.Enrollments.Any(e => e.UserId == userId && e.CourseId == courseId);
         }
 
     }

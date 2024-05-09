@@ -36,6 +36,14 @@ namespace EduhubAPI.Controllers
                         PhoneNumber = dto.PhoneNumber,
                         Avatar = dto.Avatar
                     }
+                },
+                UserCurrencies = new List<UserCurrency>
+                {
+                    new UserCurrency
+                    {
+                        CurrencyId = 1,
+                        Balance = 200
+                    }
                 }
             };
 

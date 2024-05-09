@@ -9,6 +9,7 @@ namespace EduhubAPI.Models
         {
             Chapters = new HashSet<Chapter>();
             Enrollments = new HashSet<Enrollment>();
+            Orders = new HashSet<Order>();
             Reviews = new HashSet<Review>();
         }
 
@@ -29,6 +30,7 @@ namespace EduhubAPI.Models
         public virtual User Teacher { get; set; } = null!;
         public virtual ICollection<Chapter> Chapters { get; set; }
         public virtual ICollection<Enrollment> Enrollments { get; set; }
+        public virtual ICollection<Order> Orders { get; set; }
         public virtual ICollection<Review> Reviews { get; set; }
     }
 }
