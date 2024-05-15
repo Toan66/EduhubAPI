@@ -273,5 +273,30 @@ namespace EduhubAPI.Repositories
             return _context.Enrollments.Any(e => e.UserId == userId && e.CourseId == courseId);
         }
 
+        public void StudentChapterEnroll(int userId, int courseId)
+        {
+            var chapters = _context.Chapters.Where(c => c.CourseId == courseId).OrderBy(c => c.ChapterOrder).ToList();
+
+            bool isFirstChapter = true;
+
+            foreach (var chapter in chapters)
+            {
+                var studentChapter = new StudentChapter
+                {
+                    UserId = userId,
+                    ChapterId = chapter.ChapterId,
+                    IsCompleted = false,
+                    IsUnlocked = isFirstChapter,
+                    CompletionDate = null
+                };
+
+                _context.StudentChapters.Add(studentChapter);
+
+                isFirstChapter = false;
+            }
+
+            _context.SaveChanges();
+        }
+
     }
 }

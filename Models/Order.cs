@@ -10,7 +10,7 @@ namespace EduhubAPI.Models
             Payments = new HashSet<Payment>();
         }
 
-        public int OrderId { get; set; }
+        public string OrderId { get; set; } = null!;
         public int UserId { get; set; }
         public int CourseId { get; set; }
         public decimal Amount { get; set; }

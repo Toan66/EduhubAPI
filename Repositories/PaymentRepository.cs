@@ -1,5 +1,6 @@
 ﻿using EduhubAPI.Models;
 using System.Threading.Tasks;
+using EduhubAPI.Dtos;
 using Microsoft.EntityFrameworkCore;
 
 namespace EduhubAPI.Repositories
@@ -10,6 +11,31 @@ namespace EduhubAPI.Repositories
         public PaymentRepository(EDUHUBContext context)
         {
             _context = context;
+        }
+
+        public Payment? GetPaymentByID(int id)
+        {
+            return _context.Payments.FirstOrDefault(u => u.PaymentId == id);
+        }
+
+        public Order? GetOrderByID(string id)
+        {
+            return _context.Orders.FirstOrDefault(u => u.OrderId == id);
+        }
+
+
+        public Order AddOrder(Order order)
+        {
+            _context.Orders.Add(order);
+            _context.SaveChanges();
+            return order;
+        }
+
+        public Payment AddPayment(Payment payment)
+        {
+            _context.Payments.Add(payment);
+            _context.SaveChanges();
+            return payment;
         }
 
         public async Task<Payment> CreatePaymentAsync(Payment payment)
@@ -26,7 +52,7 @@ namespace EduhubAPI.Repositories
             return order;
         }
 
-        public async Task<Order> UpdateOrderStatusAsync(int orderId, string status)
+        public async Task<Order> UpdateOrderStatusAsync(string orderId, string status)
         {
             var order = await _context.Orders.FirstOrDefaultAsync(o => o.OrderId == orderId);
             if (order != null)
@@ -36,5 +62,18 @@ namespace EduhubAPI.Repositories
             }
             return order;
         }
+
+        public IEnumerable<Order> GetOrdersByUserId(int id)
+        {
+            return _context.Orders.Where(c => c.UserId == id).ToList();
+        }
+
+        public Order UpdateOrder(Order order)
+        {
+            _context.Entry(order).State = EntityState.Modified;
+            _context.SaveChanges();
+            return order;
+        }
+
     }
 }

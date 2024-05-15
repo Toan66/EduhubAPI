@@ -79,7 +79,6 @@ namespace EduhubAPI.Controllers
             {
                 return BadRequest(e.Message);
             }
-
         }
         [HttpPut("{id}")]
         public IActionResult UpdateCourse(int id, [FromBody] UpdateCourseDto updateCourseDto)
@@ -520,6 +519,9 @@ namespace EduhubAPI.Controllers
                 int userId = int.Parse(token.Issuer);
 
                 var enrollment = _courseRepository.EnrollInCourse(userId, dto.CourseId);
+
+                _courseRepository.StudentChapterEnroll(userId, dto.CourseId);
+
                 return Ok(new { message = "Enrollment successful", enrollment });
             }
             catch (Exception e)

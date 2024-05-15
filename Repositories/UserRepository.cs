@@ -96,5 +96,14 @@ namespace EduhubAPI.Repositories
             var user = _context.Users.Include(u => u.UserInfos).FirstOrDefault(u => u.UserId == userId);
             return user?.UserInfos?.Select(ui => ui.Avatar).FirstOrDefault() ?? string.Empty;
         }
+        public (string Name, string Email) GetUserNameAndEmail(int userId)
+        {
+            var user = _context.UserInfos.FirstOrDefault(u => u.UserId == userId);
+            if (user != null)
+            {
+                return (user.FullName ?? string.Empty, user.Email ?? string.Empty);
+            }
+            return (string.Empty, string.Empty);
+        }
     }
 }

@@ -135,6 +135,32 @@ namespace EduhubAPI.Controllers
             }
         }
 
+        [HttpGet("nameemail")]
+        public IActionResult GetNameEmail()
+        {
+            try
+            {
+                var jwt = Request.Cookies["jwt"];
+                if (string.IsNullOrEmpty(jwt))
+                {
+                    return Unauthorized();
+                }
+                var token = _jwtService.Verify(jwt);
+                int userId = int.Parse(token.Issuer);
+
+                var (name, email) = _context.GetUserNameAndEmail(userId);
+                if (string.IsNullOrEmpty(name) && string.IsNullOrEmpty(email))
+                {
+                    return NotFound("User not found.");
+                }
+                return Ok(new { Name = name, Email = email });
+            }
+            catch (Exception)
+            {
+                return Unauthorized();
+            }
+        }
+
         [HttpGet("avatar")]
         public IActionResult GetAvatar()
         {
@@ -204,16 +230,16 @@ namespace EduhubAPI.Controllers
                 }
                 var token = _jwtService.Verify(jwt);
                 int userId = int.Parse(token.Issuer);
-        
+
                 var userInfo = _context.GetUserInfoByID(userId);
                 if (userInfo == null)
                 {
                     return NotFound("User not found.");
                 }
-        
+
                 userInfo.Email = dto.Email;
                 _context.UpdateUserInfo(userInfo);
-        
+
                 return Ok("User email updated successfully.");
             }
             catch (Exception)
@@ -221,7 +247,7 @@ namespace EduhubAPI.Controllers
                 return Unauthorized();
             }
         }
-        
+
         [HttpPut("updatePhoneNumber")]
         public IActionResult UpdateUserPhoneNumber([FromBody] UpdateUserPhoneNumberDto dto)
         {
@@ -234,16 +260,16 @@ namespace EduhubAPI.Controllers
                 }
                 var token = _jwtService.Verify(jwt);
                 int userId = int.Parse(token.Issuer);
-        
+
                 var userInfo = _context.GetUserInfoByID(userId);
                 if (userInfo == null)
                 {
                     return NotFound("User not found.");
                 }
-        
+
                 userInfo.PhoneNumber = dto.PhoneNumber;
                 _context.UpdateUserInfo(userInfo);
-        
+
                 return Ok("User phone number updated successfully.");
             }
             catch (Exception)
@@ -251,7 +277,7 @@ namespace EduhubAPI.Controllers
                 return Unauthorized();
             }
         }
-        
+
         [HttpPut("updateDateOfBirth")]
         public IActionResult UpdateUserDateOfBirth([FromBody] UpdateUserDateOfBirthDto dto)
         {
@@ -264,16 +290,16 @@ namespace EduhubAPI.Controllers
                 }
                 var token = _jwtService.Verify(jwt);
                 int userId = int.Parse(token.Issuer);
-        
+
                 var userInfo = _context.GetUserInfoByID(userId);
                 if (userInfo == null)
                 {
                     return NotFound("User not found.");
                 }
-        
+
                 userInfo.DateOfBirth = dto.DateOfBirth;
                 _context.UpdateUserInfo(userInfo);
-        
+
                 return Ok("User date of birth updated successfully.");
             }
             catch (Exception)
@@ -281,7 +307,7 @@ namespace EduhubAPI.Controllers
                 return Unauthorized();
             }
         }
-        
+
         [HttpPut("updateGender")]
         public IActionResult UpdateUserGender([FromBody] UpdateUserGenderDto dto)
         {
@@ -294,16 +320,16 @@ namespace EduhubAPI.Controllers
                 }
                 var token = _jwtService.Verify(jwt);
                 int userId = int.Parse(token.Issuer);
-        
+
                 var userInfo = _context.GetUserInfoByID(userId);
                 if (userInfo == null)
                 {
                     return NotFound("User not found.");
                 }
-        
+
                 userInfo.Gender = dto.Gender;
                 _context.UpdateUserInfo(userInfo);
-        
+
                 return Ok("User gender updated successfully.");
             }
             catch (Exception)
@@ -324,16 +350,16 @@ namespace EduhubAPI.Controllers
                 }
                 var token = _jwtService.Verify(jwt);
                 int userId = int.Parse(token.Issuer);
-        
+
                 var userInfo = _context.GetUserInfoByID(userId);
                 if (userInfo == null)
                 {
                     return NotFound("User not found.");
                 }
-        
+
                 userInfo.Avatar = dto.Avatar;
                 _context.UpdateUserInfo(userInfo);
-        
+
                 return Ok("User avatar updated successfully.");
             }
             catch (Exception)

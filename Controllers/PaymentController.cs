@@ -3,7 +3,10 @@ using EduhubAPI.Models.Orders;
 using EduhubAPI.Repositories;
 using EduhubAPI.Services;
 using Microsoft.AspNetCore.Http;
+using EduhubAPI.Helpers;
 using Microsoft.AspNetCore.Mvc;
+using EduhubAPI.Dtos;
+using System;
 
 namespace EduhubAPI.Controllers
 {
@@ -13,12 +16,100 @@ namespace EduhubAPI.Controllers
     {
         private readonly PaymentRepository _paymentRepository;
         private readonly IMomoService _momoService;
+        private readonly JwtService _jwtService;
 
-        public PaymentController(PaymentRepository paymentRepository, IMomoService momoService)
+        public PaymentController(PaymentRepository paymentRepository, IMomoService momoService, JwtService jwtService)
         {
             _paymentRepository = paymentRepository;
             _momoService = momoService;
+            _jwtService = jwtService;
         }
+
+        [HttpPost("addOrder")]
+        public IActionResult AddOrder([FromBody] CreateOrderDto orderDto)
+        {
+            Random random = new Random();
+            try
+            {
+                var jwt = Request.Cookies["jwt"];
+                if (string.IsNullOrEmpty(jwt))
+                {
+                    return Unauthorized();
+                }
+                var token = _jwtService.Verify(jwt);
+                int userId = int.Parse(token.Issuer);
+
+
+                var order = new Order
+                {
+                    OrderId = DateTime.UtcNow.Ticks.ToString(),
+                    UserId = userId,
+                    CourseId = orderDto.CourseId,
+                    Amount = orderDto.Amount,
+                    OrderDate = DateTime.Now,
+                    Status = orderDto.Status,
+                };
+
+                return Ok(_paymentRepository.AddOrder(order));
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost("addPayment")]
+        public IActionResult AddPayment([FromBody] CreatePaymentDto paymentDto)
+        {
+            var payment = new Payment
+            {
+                OrderId = paymentDto.OrderId,
+                TransactionId = paymentDto.TransactionId,
+                PaymentDate = DateTime.Now,
+                Amount = paymentDto.Amount,
+                Status = paymentDto.Status,
+            };
+
+            _paymentRepository.AddPayment(payment);
+            return Ok(payment);
+        }
+
+        [HttpGet("ByUser")]
+        public IActionResult GetOrdersByUser()
+        {
+            try
+            {
+                var jwt = Request.Cookies["jwt"];
+                if (string.IsNullOrEmpty(jwt))
+                {
+                    return Unauthorized("Don't have token.");
+                }
+
+                var token = _jwtService.Verify(jwt);
+                int userId = int.Parse(token.Issuer);
+
+                var orders = _paymentRepository.GetOrdersByUserId(userId);
+                if (orders == null || !orders.Any())
+                {
+                    return NotFound("Don't have any order.");
+                }
+
+                return Ok(orders);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("order/{id}")]
+        public IActionResult GetOrderByID(string id)
+        {
+            var order = _paymentRepository.GetOrderByID(id);
+            return Ok(order);
+        }
+
+
 
         [HttpPost("create")]
         public async Task<IActionResult> CreatePayment([FromBody] OrderInfoModel model)
@@ -26,38 +117,43 @@ namespace EduhubAPI.Controllers
             var paymentResponse = await _momoService.CreatePaymentAsync(model);
             if (paymentResponse != null && !string.IsNullOrEmpty(paymentResponse.PayUrl))
             {
-                // Chuyển hướng người dùng đến trang thanh toán của Momo
                 return Ok(new { url = paymentResponse.PayUrl });
             }
             return BadRequest("Không thể tạo thanh toán.");
         }
+
         [HttpPost("callback")]
         public IActionResult PaymentCallback([FromQuery] IQueryCollection query)
         {
             var paymentResult = _momoService.PaymentExecuteAsync(query);
             if (paymentResult != null)
             {
-                // Xử lý kết quả thanh toán, ví dụ: cập nhật trạng thái đơn hàng
+                var order = _paymentRepository.GetOrderByID(paymentResult.OrderId);
+                order.Status = "Paid";
+                _paymentRepository.UpdateOrderStatusAsync(order.OrderId, order.Status);
                 return Ok("Thanh toán thành công.");
             }
             return BadRequest("Thanh toán không thành công.");
         }
 
 
-        [HttpPost("momoNotify")]
-        public async Task<IActionResult> MomoNotify([FromBody] object request)
+        [HttpPost("order/{id}/paid")]
+        public IActionResult UpdateOrderPaid(string id)
         {
-            // Xử lý thông báo từ MoMo ở đây
-            // Ví dụ: cập nhật trạng thái đơn hàng, lưu thông tin giao dịch, v.v.
-            return Ok();
+            var order = _paymentRepository.GetOrderByID(id);
+            if (order != null)
+            {
+                order.Status = "Paid";
+                _paymentRepository.UpdateOrder(order);
+                return Ok();
+            }
+            else return BadRequest();
         }
 
         [HttpGet("PaymentCallBack")]
         public IActionResult PaymentCallBack([FromQuery] string resultCode, [FromQuery] string orderId)
         {
-            // Xử lý kết quả trả về từ MoMo ở đây
-            // Ví dụ: hiển thị thông báo thành công hoặc thất bại cho người dùng
-            return RedirectToAction("Index", "Home"); // Chuyển hướng người dùng về trang chủ hoặc trang phù hợp
+            return RedirectToAction("Index", "Home");
         }
 
     }

@@ -8,6 +8,7 @@ namespace EduhubAPI.Models
         public Chapter()
         {
             Lessons = new HashSet<Lesson>();
+            StudentChapters = new HashSet<StudentChapter>();
             Tests = new HashSet<Test>();
         }
 
@@ -19,6 +20,7 @@ namespace EduhubAPI.Models
 
         public virtual Course Course { get; set; } = null!;
         public virtual ICollection<Lesson> Lessons { get; set; }
+        public virtual ICollection<StudentChapter> StudentChapters { get; set; }
         public virtual ICollection<Test> Tests { get; set; }
     }
 }
