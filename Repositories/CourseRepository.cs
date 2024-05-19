@@ -128,10 +128,16 @@ namespace EduhubAPI.Repositories
                     AverageRating = c.AverageRating,
                     CourseLevel = c.CourseLevel,
                     Category = c.Category,
+                    Enrollments = c.Enrollments.Select(e => new Enrollment
+                    {
+                        EnrollmentId = e.EnrollmentId,
+                        UserId = e.EnrollmentId
+                    }).ToList(),
                     Chapters = c.Chapters.OrderBy(ch => ch.ChapterOrder).Select(ch => new Chapter
                     {
                         ChapterId = ch.ChapterId,
                         ChapterTitle = ch.ChapterTitle,
+                        ChapterDescription = ch.ChapterDescription,
                         ChapterOrder = ch.ChapterOrder,
                         CourseId = ch.CourseId,
                         Lessons = ch.Lessons.Select(l => new Lesson
@@ -298,5 +304,20 @@ namespace EduhubAPI.Repositories
             _context.SaveChanges();
         }
 
+        public decimal GetCompletePercentage(int userId, int courseId)
+        {
+            return _context.Enrollments
+                           .Where(e => e.UserId == userId && e.CourseId == courseId)
+                           .Select(e => e.CompletionPercentage)
+                           .FirstOrDefault() ?? 0m;
+        }
+
+        public List<int> GetCompletedChaptersByCourseId(int userId, int courseId)
+        {
+            return _context.StudentChapters
+                .Where(sc => sc.UserId == userId && sc.CompletePercent == 100 && sc.Chapter.CourseId == courseId)
+                .Select(sc => sc.ChapterId)
+                .ToList();
+        }
     }
 }

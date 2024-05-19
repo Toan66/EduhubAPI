@@ -5,6 +5,7 @@ using EduhubAPI.Dtos;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
 
 namespace EduhubAPI.Controllers
 {
@@ -230,5 +231,64 @@ namespace EduhubAPI.Controllers
                 return BadRequest(e.Message);
             }
         }
+
+        [HttpGet("{chapterId}/completedItems")]
+        public IActionResult GetCompletedItemsByChapter(int chapterId)
+        {
+            try
+            {
+                var jwt = Request.Cookies["jwt"];
+                if (string.IsNullOrEmpty(jwt))
+                {
+                    return Unauthorized();
+                }
+                var token = _jwtService.Verify(jwt);
+                int userId = int.Parse(token.Issuer);
+
+                var completedLessons = _chapterRepository.GetCompletedLessons(userId, chapterId);
+                var completedTests = _chapterRepository.GetCompletedTests(userId, chapterId);
+
+                var result = new
+                {
+                    CompletedLessons = completedLessons,
+                    CompletedTests = completedTests
+                };
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpGet("{chapterId}/completion")]
+        public IActionResult GetChapterCompletion(int chapterId)
+        {
+            try
+            {
+                var jwt = Request.Cookies["jwt"];
+                if (string.IsNullOrEmpty(jwt))
+                {
+                    return Unauthorized();
+                }
+                var token = _jwtService.Verify(jwt);
+                int userId = int.Parse(token.Issuer);
+
+                var completionPercent = _chapterRepository.GetChapterCompletionPercent(userId, chapterId);
+
+                if (completionPercent == null)
+                {
+                    return NotFound(new { message = "Không tìm thấy thông tin hoàn thành cho chương này." });
+                }
+
+                return Ok(new { completionPercent = completionPercent });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
     }
 }

@@ -11,6 +11,7 @@ namespace EduhubAPI.Models
         public bool IsCompleted { get; set; }
         public bool IsUnlocked { get; set; }
         public DateTime? CompletionDate { get; set; }
+        public decimal? CompletePercent { get; set; }
 
         public virtual Chapter Chapter { get; set; } = null!;
         public virtual User User { get; set; } = null!;

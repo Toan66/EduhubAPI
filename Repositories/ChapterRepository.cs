@@ -49,7 +49,7 @@ namespace EduhubAPI.Repositories
         }
 
         //Delete a chapter
-         public void DeleteChapter(int chapterId)
+        public void DeleteChapter(int chapterId)
         {
             var chapterToDelete = _context.Chapters.Include(c => c.Lessons).Include(c => c.Tests).FirstOrDefault(c => c.ChapterId == chapterId);
             if (chapterToDelete == null)
@@ -121,9 +121,73 @@ namespace EduhubAPI.Repositories
                         TestId = t.TestId,
                         TestTitle = t.TestTitle,
                         TestDescription = t.TestDescription,
+                        Questions = t.Questions.Select(q => new Question
+                        {
+                            QuestionId = q.QuestionId,
+                        }).ToList(),
                     }).ToList()
                 }).FirstOrDefault();
             return chapter;
+        }
+
+        public void UpdateCompletePercent(int studentId, int chapterId)
+        {
+            // Lấy tổng số Lesson trong Chapter
+            int totalLessons = _context.Lessons.Count(l => l.ChapterId == chapterId);
+
+            // Lấy số Lesson đã hoàn thành bởi học viên trong Chapter
+            int completedLessons = _context.StudentLessons
+                .Join(_context.Lessons, sl => sl.LessonId, l => l.LessonId, (sl, l) => new { sl, l })
+                .Count(joined => joined.l.ChapterId == chapterId && joined.sl.UserId == studentId && joined.sl.CompleteDate != null);
+
+            // Tính tổng số Test trong Chapter
+            int totalTests = _context.Tests.Count(t => t.ChapterId == chapterId);
+
+            // Lấy số Test đã hoàn thành bởi học viên trong Chapter dựa trên điều kiện điểm số >= 8
+            int completedTests = _context.StudentTestAttempts
+                .Join(_context.Tests, sta => sta.TestId, t => t.TestId, (sta, t) => new { sta, t })
+                .Count(joined => joined.t.ChapterId == chapterId && joined.sta.UserId == studentId && joined.sta.Score >= 8);
+
+            int totalItems = totalLessons + totalTests;
+            int completedItems = completedLessons + completedTests;
+
+            // Đảm bảo không chia cho 0
+            decimal completePercent = totalItems > 0 ? (decimal)completedItems / totalItems * 100 : 0;
+
+            // Cập nhật CompletePercent trong bảng StudentChapter
+            var studentChapter = _context.StudentChapters.FirstOrDefault(sc => sc.UserId == studentId && sc.ChapterId == chapterId);
+            if (studentChapter != null)
+            {
+                studentChapter.CompletePercent = completePercent;
+                _context.SaveChanges();
+            }
+        }
+
+        public IEnumerable<int> GetCompletedLessons(int userId, int chapterId)
+        {
+            // Adjusted to join with Lessons to filter by ChapterId and check completion for a specific user
+            // Now only selecting the LessonId
+            return _context.StudentLessons
+                .Join(_context.Lessons, sl => sl.LessonId, l => l.LessonId, (sl, l) => new { sl, l })
+                .Where(joined => joined.l.ChapterId == chapterId && joined.sl.UserId == userId)
+                .Select(joined => joined.l.LessonId)
+                .ToList();
+        }
+
+        public IEnumerable<int> GetCompletedTests(int userId, int chapterId)
+        {
+            // Adjusted to join with Tests to filter by ChapterId and check test completion for a specific user
+            // Now only selecting the TestId
+            return _context.StudentTestAttempts
+                .Join(_context.Tests, sta => sta.TestId, t => t.TestId, (sta, t) => new { sta, t })
+                .Where(joined => joined.t.ChapterId == chapterId && joined.sta.UserId == userId && joined.sta.Score >= 8) // Assuming a score of 8 or more is considered passing/completion
+                .Select(joined => joined.t.TestId)
+                .ToList();
+        }
+        public decimal? GetChapterCompletionPercent(int userId, int chapterId)
+        {
+            var studentChapter = _context.StudentChapters.FirstOrDefault(sc => sc.UserId == userId && sc.ChapterId == chapterId);
+            return studentChapter?.CompletePercent;
         }
     }
 }

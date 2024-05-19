@@ -19,10 +19,9 @@ namespace EduhubAPI.Controllers
             _jwtService = jwtService;
         }
 
-        // Thêm mới Lesson
-        [HttpPost ("Chapter/{chapterId}/addLesson")]
+        [HttpPost("Chapter/{chapterId}/addLesson")]
         public IActionResult AddLesson(int chapterId, AddLessonDto dto)
-        {        
+        {
             try
             {
                 var lesson = new Lesson
@@ -40,7 +39,6 @@ namespace EduhubAPI.Controllers
             }
         }
 
-        // Lấy Lesson theo ID
         [HttpGet("{id}")]
         public IActionResult GetLessonById(int id)
         {
@@ -52,7 +50,6 @@ namespace EduhubAPI.Controllers
             return Ok(lesson);
         }
 
-        // Lấy Lessons theo ChapterId
         [HttpGet("ByChapter/{chapterId}")]
         public IActionResult GetLessonsByChapterId(int chapterId)
         {
@@ -64,7 +61,6 @@ namespace EduhubAPI.Controllers
             return Ok(lessons);
         }
 
-        // Lấy Lessons theo CourseId
         [HttpGet("ByCourse/{courseId}")]
         public IActionResult GetLessonsByCourseId(int courseId)
         {
@@ -75,14 +71,13 @@ namespace EduhubAPI.Controllers
             }
             return Ok(lessons);
         }
-        // Cập nhật Lesson
         [HttpPut("{id}")]
         public IActionResult UpdateLesson(int id, [FromBody] UpdateLessonDto dto)
         {
             try
             {
                 var lesson = _lessonRepository.GetLessonById(id);
-                if (lesson == null) {  return NotFound(); }
+                if (lesson == null) { return NotFound(); }
                 else
                 {
                     lesson.LessonTitle = dto.LessonTitle;
@@ -98,7 +93,6 @@ namespace EduhubAPI.Controllers
             }
         }
 
-        // Xóa Lesson
         [HttpDelete("{id}")]
         public IActionResult DeleteLesson(int id)
         {
@@ -110,6 +104,32 @@ namespace EduhubAPI.Controllers
             catch (Exception ex)
             {
                 return NotFound($"Không tìm thấy lesson với ID: {id}. Lỗi: {ex.Message}");
+            }
+        }
+
+        [HttpPost("MarkComplete")]
+        public IActionResult MarkLessonComplete([FromBody] MarkLessonCompleteDto dto)
+        {
+            try
+            {
+                var jwt = Request.Cookies["jwt"];
+                if (string.IsNullOrEmpty(jwt))
+                {
+                    return Unauthorized("No token provided.");
+                }
+
+                var token = _jwtService.Verify(jwt);
+                int userId = int.Parse(token.Issuer);
+
+                var completedLesson = _lessonRepository.MarkLessonComplete(userId, dto.LessonId);
+                int chapterId = _lessonRepository.GetChapterIdByLessonId(dto.LessonId);
+                _lessonRepository.UpdateCompletePercent(userId, chapterId);
+
+                return Ok(new { message = $"Lesson {dto.LessonId} marked as completed by user {userId} on {completedLesson.CompleteDate}." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error marking lesson as completed: {ex.Message}");
             }
         }
     }

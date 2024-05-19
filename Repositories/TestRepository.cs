@@ -1,6 +1,6 @@
 ﻿using EduhubAPI.Models;
 using Microsoft.EntityFrameworkCore;
-
+using EduhubAPI.Dtos;
 
 namespace EduhubAPI.Repositories
 {
@@ -27,7 +27,7 @@ namespace EduhubAPI.Repositories
             return _context.Tests.FirstOrDefault(t => t.TestId == testId);
         }
 
-        
+
         // Update a test
         public Test UpdateTest(int testId, Test updatedTest)
         {
@@ -68,13 +68,13 @@ namespace EduhubAPI.Repositories
             }
             return question;
         }
-        
+
         // Get questions by test ID
         public IEnumerable<Question> GetQuestionsByTestId(int testId)
         {
             return _context.Questions.Where(q => q.TestId == testId).ToList();
         }
-        
+
         // Update a question
         public Question UpdateQuestion(int questionId, Question updatedQuestion)
         {
@@ -87,7 +87,7 @@ namespace EduhubAPI.Repositories
             }
             return question;
         }
-        
+
         // Delete a question
         public bool DeleteQuestion(int questionId)
         {
@@ -100,7 +100,7 @@ namespace EduhubAPI.Repositories
             }
             return false;
         }
-        
+
         // Add an answer to a question
         public Answer AddAnswerToQuestion(int questionId, Answer answer)
         {
@@ -113,13 +113,13 @@ namespace EduhubAPI.Repositories
             }
             return answer;
         }
-        
+
         // Get answers by question ID
         public IEnumerable<Answer> GetAnswersByQuestionId(int questionId)
         {
             return _context.Answers.Where(a => a.QuestionId == questionId).ToList();
         }
-        
+
         // Update an answer
         public Answer UpdateAnswer(int answerId, Answer updatedAnswer)
         {
@@ -133,7 +133,7 @@ namespace EduhubAPI.Repositories
             }
             return answer;
         }
-        
+
         // Delete an answer
         public bool DeleteAnswer(int answerId)
         {
@@ -156,5 +156,71 @@ namespace EduhubAPI.Repositories
                     .ThenInclude(q => q.Answers)
                 .FirstOrDefault();
         }
+        public decimal CalculateTestScore(TestSubmissionDto submission)
+        {
+            int totalQuestions = _context.Questions.Count(q => q.TestId == submission.TestId);
+            if (totalQuestions == 0) return 0; // Tránh chia cho 0
+
+            int correctAnswers = 0;
+            foreach (var answer in submission.Answers)
+            {
+                var correctAnswer = _context.Answers.FirstOrDefault(a => a.QuestionId == answer.QuestionId && a.IsCorrect);
+                if (correctAnswer != null && correctAnswer.AnswerId == answer.AnswerId)
+                {
+                    correctAnswers++;
+                }
+            }
+
+            decimal scorePerQuestion = 10m / totalQuestions;
+            decimal totalScore = correctAnswers * scorePerQuestion;
+
+            return Math.Round(totalScore, 2);
+        }
+
+        public void SaveTestAttempt(StudentTestAttempt testAttempt)
+        {
+            _context.StudentTestAttempts.Add(testAttempt);
+            _context.SaveChanges();
+        }
+
+        public void UpdateCompletePercent(int studentId, int chapterId)
+        {
+            // Lấy tổng số Lesson trong Chapter
+            int totalLessons = _context.Lessons.Count(l => l.ChapterId == chapterId);
+
+            // Lấy số Lesson đã hoàn thành bởi học viên trong Chapter
+            int completedLessons = _context.StudentLessons
+                .Join(_context.Lessons, sl => sl.LessonId, l => l.LessonId, (sl, l) => new { sl, l })
+                .Count(joined => joined.l.ChapterId == chapterId && joined.sl.UserId == studentId && joined.sl.CompleteDate != null);
+
+            // Tính tổng số Test trong Chapter
+            int totalTests = _context.Tests.Count(t => t.ChapterId == chapterId);
+
+            // Lấy số Test đã hoàn thành bởi học viên trong Chapter dựa trên điều kiện điểm số >= 8
+            int completedTests = _context.StudentTestAttempts
+                .Join(_context.Tests, sta => sta.TestId, t => t.TestId, (sta, t) => new { sta, t })
+                .Count(joined => joined.t.ChapterId == chapterId && joined.sta.UserId == studentId && joined.sta.Score >= 8);
+
+            int totalItems = totalLessons + totalTests;
+            int completedItems = completedLessons + completedTests;
+
+            // Đảm bảo không chia cho 0
+            decimal completePercent = totalItems > 0 ? (decimal)completedItems / totalItems * 100 : 0;
+
+            // Cập nhật CompletePercent trong bảng StudentChapter
+            var studentChapter = _context.StudentChapters.FirstOrDefault(sc => sc.UserId == studentId && sc.ChapterId == chapterId);
+            if (studentChapter != null)
+            {
+                studentChapter.CompletePercent = completePercent;
+                _context.SaveChanges();
+            }
+        }
+
+        public int GetChapterIdByTestId(int testId)
+        {
+            return _context.Tests.FirstOrDefault(t => t.TestId == testId).ChapterId;
+        }
+
+
     }
 }

@@ -545,7 +545,35 @@ namespace EduhubAPI.Controllers
                 int userId = int.Parse(token.Issuer);
 
                 bool isEnrolled = _courseRepository.IsUserEnrolledInCourse(userId, courseId);
-                return Ok(new { isEnrolled = isEnrolled });
+                var completedPercentage = _courseRepository.GetCompletePercentage(userId, courseId);
+                return Ok(new { isEnrolled = isEnrolled, completedPercentage = completedPercentage });
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("{courseId}/completedChapters")]
+        public IActionResult GetCompletedChapters(int courseId)
+        {
+            try
+            {
+                var jwt = Request.Cookies["jwt"];
+                if (string.IsNullOrEmpty(jwt))
+                {
+                    return Unauthorized();
+                }
+                var token = _jwtService.Verify(jwt);
+                int userId = int.Parse(token.Issuer);
+
+                var completedChapters = _courseRepository.GetCompletedChaptersByCourseId(userId, courseId);
+                if (completedChapters == null || !completedChapters.Any())
+                {
+                    return NotFound("Không tìm thấy chương nào hoàn thành.");
+                }
+
+                return Ok(completedChapters);
             }
             catch (Exception e)
             {
