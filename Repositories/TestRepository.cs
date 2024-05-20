@@ -207,6 +207,8 @@ namespace EduhubAPI.Repositories
             // Đảm bảo không chia cho 0
             decimal completePercent = totalItems > 0 ? (decimal)completedItems / totalItems * 100 : 0;
 
+            if (completePercent > 100) { completePercent = 100; };
+
             // Cập nhật CompletePercent trong bảng StudentChapter
             var studentChapter = _context.StudentChapters.FirstOrDefault(sc => sc.UserId == studentId && sc.ChapterId == chapterId);
             if (studentChapter != null)
@@ -221,6 +223,10 @@ namespace EduhubAPI.Repositories
             return _context.Tests.FirstOrDefault(t => t.TestId == testId).ChapterId;
         }
 
-
+        public StudentTestAttempt GetTestAttemptDetails(int testAttemptId)
+        {
+            var testAttempt = _context.StudentTestAttempts.Where(sta => sta.TestAttemptId == testAttemptId).FirstOrDefault() ?? throw new Exception("Test attempt not found.");
+            return testAttempt;
+        }
     }
 }

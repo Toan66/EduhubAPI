@@ -50,6 +50,7 @@ namespace EduhubAPI
             builder.Services.AddScoped<LessonRepository>();
             builder.Services.AddScoped<TestRepository>();
             builder.Services.AddScoped<PaymentRepository>();
+            builder.Services.AddScoped<ReviewRepository>();
 
             builder.Services.AddScoped<JwtService>();
 

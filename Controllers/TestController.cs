@@ -196,12 +196,23 @@ namespace EduhubAPI.Controllers
 
                 _repository.UpdateCompletePercent(userId, chapterId);
 
-                return Ok(new { Score = score, Message = "Test attempt recorded successfully." });
+                return Ok(new { Score = score, Message = "Test attempt recorded successfully.", Id = testAttempt.TestAttemptId });
             }
             catch (Exception ex)
             {
                 return StatusCode(500, $"Error submitting test: {ex.Message}");
             }
+        }
+
+        [HttpGet("attempts/{testAttemptId}")]
+        public IActionResult GetTestAttemptDetails(int testAttemptId)
+        {
+            var testAttemptDetails = _repository.GetTestAttemptDetails(testAttemptId);
+            if (testAttemptDetails == null)
+            {
+                return NotFound("Test attempt not found.");
+            }
+            return Ok(testAttemptDetails);
         }
 
     }

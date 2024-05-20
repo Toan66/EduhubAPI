@@ -106,6 +106,8 @@ namespace EduhubAPI.Repositories
             // Đảm bảo không chia cho 0
             decimal completePercent = totalItems > 0 ? (decimal)completedItems / totalItems * 100 : 0;
 
+            if (completePercent > 100) { completePercent = 100; };
+
             // Cập nhật CompletePercent trong bảng StudentChapter
             var studentChapter = _context.StudentChapters.FirstOrDefault(sc => sc.UserId == studentId && sc.ChapterId == chapterId);
             if (studentChapter != null)
