@@ -19,7 +19,7 @@ namespace EduhubAPI.Controllers
             _jwtService = jwtService;
         }
         [HttpGet]
-        public IActionResult GetAllCourses()
+        public IActionResult GetAllApprovedCourses()
         {
             var courses = _courseRepository.GetAllCourses().Where(x => x.ApprovalStatus == true);
             return Ok(courses);
@@ -489,6 +489,18 @@ namespace EduhubAPI.Controllers
             return Ok(courses);
         }
 
+        [HttpGet("All")]
+        public IActionResult GetAllCourse()
+        {
+            var courses = _courseRepository.GetAllCourses();
+            if (courses == null)
+            {
+                return NotFound("Not found.");
+            }
+            return Ok(courses);
+        }
+
+
         [HttpPost("{id}/approve")]
         public IActionResult ApproveCourse(int id)
         {
@@ -574,6 +586,113 @@ namespace EduhubAPI.Controllers
                 }
 
                 return Ok(completedChapters);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("enrolledCourses")]
+        public IActionResult GetEnrolledCourses()
+        {
+            try
+            {
+                var jwt = Request.Cookies["jwt"];
+                if (string.IsNullOrEmpty(jwt))
+                {
+                    return Unauthorized("No token provided.");
+                }
+
+                var token = _jwtService.Verify(jwt);
+                int userId = int.Parse(token.Issuer);
+
+                // Giả sử có phương thức GetEnrolledCoursesByUserId trong _courseRepository
+                var enrolledCourses = _courseRepository.GetEnrolledCourses(userId);
+                if (enrolledCourses == null || !enrolledCourses.Any())
+                {
+                    return NotFound("No courses found.");
+                }
+
+                return Ok(enrolledCourses);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("{courseId}/certificateInfo")]
+        public IActionResult GetCertificateInformation(int courseId)
+        {
+            try
+            {
+                var jwt = Request.Cookies["jwt"];
+                if (string.IsNullOrEmpty(jwt))
+                {
+                    return Unauthorized("No token provided.");
+                }
+
+                var token = _jwtService.Verify(jwt);
+                int userId = int.Parse(token.Issuer);
+
+                // Check if the user is enrolled and has completed the course
+                bool isEnrolled = _courseRepository.IsUserEnrolledInCourse(userId, courseId);
+                if (!isEnrolled)
+                {
+                    return NotFound("User is not enrolled in this course.");
+                }
+
+                var completedPercentage = _courseRepository.GetCompletePercentage(userId, courseId);
+                if (completedPercentage < 100)
+                {
+                    return BadRequest("Course is not yet completed.");
+                }
+
+                // Assuming methods exist to get user, teacher, and course details
+                var userDetails = _courseRepository.GetUserDetails(userId);
+                var courseDetails = _courseRepository.GetCourseDetails(courseId);
+                var teacherDetails = _courseRepository.GetTeacherByCourseId(courseId);
+
+                if (userDetails == null || courseDetails == null || teacherDetails == null)
+                {
+                    return NotFound("Details not found.");
+                }
+
+                // Create a DTO or an anonymous object to return the combined information
+                var certificateInfo = new
+                {
+                    User = userDetails,
+                    Course = courseDetails,
+                    Teacher = teacherDetails
+                };
+
+                return Ok(certificateInfo);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("search")]
+        public IActionResult SearchCourses(string query)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(query))
+                {
+                    return BadRequest("Query is required.");
+                }
+
+                // Sửa đổi lệnh gọi repository để tìm kiếm cả trong CourseName và CourseDescription
+                var courses = _courseRepository.SearchCoursesByTitleAndDescription(query);
+                if (courses == null || !courses.Any())
+                {
+                    return NotFound("No courses found matching the query.");
+                }
+
+                return Ok(courses);
             }
             catch (Exception e)
             {
