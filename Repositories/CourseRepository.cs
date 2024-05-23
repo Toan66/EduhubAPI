@@ -435,6 +435,28 @@ namespace EduhubAPI.Repositories
             return courses;
         }
 
+        public IEnumerable<UserEnrollmentInfoDto> GetUserEnrollmentInfoByTeacherId(int teacherId)
+        {
+            var users = from enrollment in _context.Enrollments
+                        join course in _context.Courses on enrollment.CourseId equals course.CourseId
+                        join user in _context.Users on enrollment.UserId equals user.UserId
+                        join userInfo in _context.UserInfos on user.UserId equals userInfo.UserId
+                        where course.TeacherId == teacherId
+                        select new UserEnrollmentInfoDto
+                        {
+                            UserId = user.UserId,
+                            Username = user.Username,
+                            FullName = userInfo.FullName,
+                            Email = userInfo.Email,
+                            CourseId = course.CourseId,
+                            CourseName = course.CourseName,
+                            EnrollmentDate = enrollment.EnrollmentDate,
+                            CompletionPercentage = enrollment.CompletionPercentage
+                        };
+
+            return users.ToList();
+        }
+
 
     }
 }

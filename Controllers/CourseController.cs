@@ -730,5 +730,33 @@ namespace EduhubAPI.Controllers
             }
         }
 
+        [HttpGet("teacher/enrollments")]
+        public IActionResult GetUserEnrollmentInfoByTeacher()
+        {
+            try
+            {
+                var jwt = Request.Cookies["jwt"];
+                if (string.IsNullOrEmpty(jwt))
+                {
+                    return Unauthorized("No token provided.");
+                }
+
+                var token = _jwtService.Verify(jwt);
+                int teacherId = int.Parse(token.Issuer);
+
+                var userEnrollments = _courseRepository.GetUserEnrollmentInfoByTeacherId(teacherId);
+                if (userEnrollments == null || !userEnrollments.Any())
+                {
+                    return NotFound("No enrollments found.");
+                }
+
+                return Ok(userEnrollments);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
     }
 }
