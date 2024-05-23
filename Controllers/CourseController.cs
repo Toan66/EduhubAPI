@@ -699,5 +699,36 @@ namespace EduhubAPI.Controllers
                 return BadRequest(e.Message);
             }
         }
+
+        [HttpGet("category/{categoryId}")]
+        public IActionResult GetCoursesByCategory(int categoryId)
+        {
+            var courses = _courseRepository.GetCoursesByCategoryId(categoryId);
+            if (courses == null || !courses.Any())
+            {
+                return NotFound("No courses found for the specified category.");
+            }
+            return Ok(courses);
+        }
+
+        [HttpGet("approvedCourses")]
+        public IActionResult GetApprovedCourses()
+        {
+            try
+            {
+                var courses = _courseRepository.GetApprovedCourses();
+                if (courses == null || !courses.Any())
+                {
+                    return NotFound("No approved courses found.");
+                }
+
+                return Ok(courses);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
     }
 }

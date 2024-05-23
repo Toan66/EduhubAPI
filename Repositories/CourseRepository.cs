@@ -219,6 +219,7 @@ namespace EduhubAPI.Repositories
                     Avatar = t.Avatar,
                     UserAddress = t.UserAddress,
                     UserDescription = t.UserDescription,
+                    Expertise = t.Expertise,
                 }).FirstOrDefault();
 
 
@@ -375,5 +376,65 @@ namespace EduhubAPI.Repositories
             //                .Where(c => c.ApprovalStatus == true)
             //                .ToList();
         }
+
+        public IEnumerable<CourseCardDto> GetCoursesByCategoryId(int categoryId)
+        {
+            var courses = (from c in _context.Courses
+                           join u in _context.UserInfos on c.TeacherId equals u.UserId
+                           join cg in _context.CourseCategories on c.CategoryId equals cg.CourseCategoryId
+                           join lv in _context.CourseLevels on c.CourseLevelId equals lv.CourseLevelId
+                           where c.CategoryId == categoryId && c.ApprovalStatus == true
+                           select new CourseCardDto()
+                           {
+                               CourseId = c.CourseId,
+                               CourseName = c.CourseName,
+                               FeatureImage = c.FeatureImage,
+                               AverageRating = c.AverageRating,
+                               CoursePrice = c.CoursePrice,
+                               CourseCategoryName = cg.CourseCategoryName,
+                               FullName = u.FullName,
+                               Avatar = u.Avatar,
+                               TeacherId = u.UserId,
+                               CourseLevelName = lv.CourseLevelName,
+                               Chapters = c.Chapters.Select(ch => new ChapterDto
+                               {
+                                   ChapterId = ch.ChapterId,
+                                   CourseId = ch.CourseId,
+                               }).ToList(),
+                               Enrollments = c.Enrollments
+                           }).ToList();
+            return courses;
+        }
+
+        public IEnumerable<CourseCardDto> GetApprovedCourses()
+        {
+            var courses = (from c in _context.Courses
+                           join u in _context.UserInfos on c.TeacherId equals u.UserId
+                           join cg in _context.CourseCategories on c.CategoryId equals cg.CourseCategoryId
+                           join lv in _context.CourseLevels on c.CourseLevelId equals lv.CourseLevelId
+                           where c.ApprovalStatus == true
+                           select new CourseCardDto()
+                           {
+                               CourseId = c.CourseId,
+                               CourseName = c.CourseName,
+                               FeatureImage = c.FeatureImage,
+                               AverageRating = c.AverageRating,
+                               CoursePrice = c.CoursePrice,
+                               CourseCategoryName = cg.CourseCategoryName,
+                               FullName = u.FullName,
+                               Avatar = u.Avatar,
+                               TeacherId = u.UserId,
+                               CourseLevelName = lv.CourseLevelName,
+                               Chapters = c.Chapters.Select(ch => new ChapterDto
+                               {
+                                   ChapterId = ch.ChapterId,
+                                   CourseId = ch.CourseId,
+                               }).ToList(),
+                               Enrollments = c.Enrollments
+                           }).ToList();
+            return courses;
+        }
+
+
     }
 }

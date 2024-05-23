@@ -7,7 +7,7 @@ namespace EduhubAPI.Dtos
         public string UserType { get; set; }
         public UserInfoDto UserInfo { get; set; }
     }
-    
+
     public class UserInfoDto
     {
         public string FullName { get; set; }
@@ -18,5 +18,6 @@ namespace EduhubAPI.Dtos
         public string Avatar { get; set; }
         public string UserAddress { get; set; }
         public string UserDescription { get; set; }
+        public string Expertise { get; set; }
     }
 }

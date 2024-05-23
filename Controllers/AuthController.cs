@@ -34,17 +34,18 @@ namespace EduhubAPI.Controllers
                         DateOfBirth = dto.DateOfBirth,
                         Gender = dto.Gender,
                         PhoneNumber = dto.PhoneNumber,
-                        Avatar = dto.Avatar
+                        Avatar = dto.Avatar,
+                        Expertise = dto.Expertise,
                     }
                 },
-                UserCurrencies = new List<UserCurrency>
-                {
-                    new UserCurrency
-                    {
-                        CurrencyId = 1,
-                        Balance = 200
-                    }
-                }
+                //UserCurrencies = new List<UserCurrency>
+                //{
+                //    new UserCurrency
+                //    {
+                //        CurrencyId = 1,
+                //        Balance = 200
+                //    }
+                //}
             };
 
             return Created("success", _context.Create(user));

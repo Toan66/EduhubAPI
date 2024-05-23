@@ -156,5 +156,54 @@ namespace EduhubAPI.Controllers
             return RedirectToAction("Index", "Home");
         }
 
+        [HttpGet("completedOrdersByTeacherCourses")]
+        public IActionResult GetCompletedOrdersByTeacherCourses()
+        {
+            try
+            {
+                var jwt = Request.Cookies["jwt"];
+                if (string.IsNullOrEmpty(jwt))
+                {
+                    return Unauthorized("Don't have token.");
+                }
+
+                var token = _jwtService.Verify(jwt);
+                int userId = int.Parse(token.Issuer);
+
+                var completedOrders = _paymentRepository.GetCompletedOrdersByTeacherId(userId);
+
+                if (completedOrders == null || !completedOrders.Any())
+                {
+                    return NotFound("No completed orders found.");
+                }
+
+                return Ok(completedOrders);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("paidOrders")]
+        public IActionResult GetPaidOrders()
+        {
+            try
+            {
+                var paidOrders = _paymentRepository.GetPaidOrders();
+
+                if (paidOrders == null || !paidOrders.Any())
+                {
+                    return NotFound("No paid orders found.");
+                }
+
+                return Ok(paidOrders);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
     }
 }

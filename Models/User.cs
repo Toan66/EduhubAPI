@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace EduhubAPI.Models
 {
@@ -20,7 +21,7 @@ namespace EduhubAPI.Models
 
         public int UserId { get; set; }
         public string Username { get; set; } = null!;
-        public string Password { get; set; } = null!;
+        [JsonIgnore] public string Password { get; set; } = null!;
         public int UserTypeId { get; set; }
 
         public virtual UserType UserType { get; set; } = null!;

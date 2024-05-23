@@ -75,5 +75,22 @@ namespace EduhubAPI.Repositories
             return order;
         }
 
+        public IEnumerable<Order> GetCompletedOrdersByTeacherId(int teacherId)
+        {
+            var courseIds = _context.Courses
+                .Where(c => c.TeacherId == teacherId)
+                .Select(c => c.CourseId)
+                .ToList();
+
+            return _context.Orders
+                .Where(o => courseIds.Contains(o.CourseId) && o.Status == "Paid")
+                .ToList();
+        }
+
+        public IEnumerable<Order> GetPaidOrders()
+        {
+            return _context.Orders.Where(o => o.Status == "Paid").ToList();
+        }
+
     }
 }

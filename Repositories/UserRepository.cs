@@ -13,7 +13,7 @@ namespace EduhubAPI.Repositories
         }
         public IEnumerable<User> GetAllUsers()
         {
-            return _context.Set<User>().ToList();
+            return _context.Users.ToList();
         }
         public User Create(User user)
         {
@@ -80,7 +80,8 @@ namespace EduhubAPI.Repositories
                         PhoneNumber = ui.PhoneNumber,
                         Avatar = ui.Avatar,
                         UserAddress = ui.UserAddress,
-                        UserDescription = ui.UserDescription
+                        UserDescription = ui.UserDescription,
+                        Expertise = ui.Expertise,
                     }).FirstOrDefault()
                 }).FirstOrDefault();
 
@@ -105,5 +106,38 @@ namespace EduhubAPI.Repositories
             }
             return (string.Empty, string.Empty);
         }
+
+        public IEnumerable<UserDetailsDto> GetAllTeachers()
+        {
+            return _context.Users
+                .Where(u => u.UserTypeId == 2)
+                .Join(_context.UserInfos,
+                      user => user.UserId,
+                      userInfo => userInfo.UserId,
+                      (user, userInfo) => new UserDetailsDto
+                      {
+                          UserId = user.UserId,
+                          Username = user.Username,
+                          UserType = user.UserType.UserTypeName,
+                          UserInfo = new UserInfoDto
+                          {
+                              FullName = userInfo.FullName,
+                              Email = userInfo.Email,
+                              DateOfBirth = userInfo.DateOfBirth,
+                              Gender = userInfo.Gender,
+                              PhoneNumber = userInfo.PhoneNumber,
+                              Avatar = userInfo.Avatar,
+                              UserAddress = userInfo.UserAddress,
+                              UserDescription = userInfo.UserDescription,
+                              Expertise = userInfo.Expertise
+                          }
+                      }).ToList();
+        }
+
+        public IEnumerable<User> GetUsers()
+        {
+            return _context.Users.Include(u => u.UserInfos).ToList();
+        }
+
     }
 }

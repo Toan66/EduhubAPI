@@ -427,5 +427,106 @@ namespace EduhubAPI.Controllers
                 return Unauthorized();
             }
         }
+
+        [HttpPut("updatePassword")]
+        public IActionResult UpdateUserPassword([FromBody] UpdateUserPasswordDto dto)
+        {
+            try
+            {
+                var jwt = Request.Cookies["jwt"];
+                if (string.IsNullOrEmpty(jwt))
+                {
+                    return Unauthorized();
+                }
+                var token = _jwtService.Verify(jwt);
+                int userId = int.Parse(token.Issuer);
+
+                var user = _context.GetUserByID(userId);
+                if (user == null)
+                {
+                    return NotFound("User not found.");
+                }
+
+                if (user.Password != dto.CurrentPassword) // Assuming passwords are stored in plain text, which is not recommended
+                {
+                    return BadRequest("Current password is incorrect.");
+                }
+
+                user.Password = dto.NewPassword;
+                _context.UpdateUser(user);
+
+                return Ok("User password updated successfully.");
+            }
+            catch (Exception)
+            {
+                return Unauthorized();
+            }
+        }
+
+        [HttpPut("updateExpertise")]
+        public IActionResult UpdateUserExpertise([FromBody] UpdateUserExpertiseDto dto)
+        {
+            try
+            {
+                var jwt = Request.Cookies["jwt"];
+                if (string.IsNullOrEmpty(jwt))
+                {
+                    return Unauthorized();
+                }
+                var token = _jwtService.Verify(jwt);
+                int userId = int.Parse(token.Issuer);
+
+                var userInfo = _context.GetUserInfoByID(userId);
+                if (userInfo == null)
+                {
+                    return NotFound("User not found.");
+                }
+
+                userInfo.Expertise = dto.Expertise;
+                _context.UpdateUserInfo(userInfo);
+
+                return Ok("User expertise updated successfully.");
+            }
+            catch (Exception)
+            {
+                return Unauthorized();
+            }
+        }
+
+        [HttpGet("teachers")]
+        public IActionResult GetAllTeachers()
+        {
+            try
+            {
+                var teachers = _context.GetAllTeachers();
+                if (teachers == null || !teachers.Any())
+                {
+                    return NotFound("No teachers found.");
+                }
+                return Ok(teachers);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+        [HttpGet("users")]
+        public IActionResult GetAllUsers()
+        {
+            try
+            {
+                var users = _context.GetUsers();
+                if (users == null || !users.Any())
+                {
+                    return NotFound("No users found.");
+                }
+                return Ok(users);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
     }
 }
