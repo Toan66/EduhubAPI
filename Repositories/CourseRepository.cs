@@ -457,6 +457,23 @@ namespace EduhubAPI.Repositories
             return users.ToList();
         }
 
+        public CourseCategory AddCategory(CourseCategory category)
+        {
+            _context.CourseCategories.Add(category);
+            _context.SaveChanges();
+            return category;
+        }
+
+        // Delete a category by ID
+        public void DeleteCategory(int categoryId)
+        {
+            var category = _context.CourseCategories.Find(categoryId);
+            if (category != null)
+            {
+                _context.CourseCategories.Remove(category);
+                _context.SaveChanges();
+            }
+        }
 
     }
 }
