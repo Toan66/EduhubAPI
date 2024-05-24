@@ -95,6 +95,56 @@ namespace EduhubAPI.Controllers
             _courseRepository.UpdateCourse(course);
             return NoContent();
         }
+
+        [HttpPost("category/add")]
+        public IActionResult AddCategory([FromBody] CourseCategory courseCategory)
+        {
+            try
+            {
+                var jwt = Request.Cookies["jwt"];
+                if (string.IsNullOrEmpty(jwt))
+                {
+                    return Unauthorized();
+                }
+                var token = _jwtService.Verify(jwt);
+                int userId = int.Parse(token.Issuer);
+
+                var category = new CourseCategory
+                {
+                    CourseCategoryName = courseCategory.CourseCategoryName
+                };
+
+                var createdCategory = _courseRepository.AddCategory(category);
+                return Ok(createdCategory);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpDelete("category/{id}")]
+        public IActionResult DeleteCategory(int id)
+        {
+            try
+            {
+                var jwt = Request.Cookies["jwt"];
+                if (string.IsNullOrEmpty(jwt))
+                {
+                    return Unauthorized();
+                }
+                var token = _jwtService.Verify(jwt);
+                int userId = int.Parse(token.Issuer);
+
+                _courseRepository.DeleteCategory(id);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         [HttpPut("{id}/updateName")]
         public IActionResult UpdateCourseName(int id, [FromBody] UpdateCourseNameDto updateCourseNameDto)
         {
@@ -757,6 +807,8 @@ namespace EduhubAPI.Controllers
                 return BadRequest(e.Message);
             }
         }
+
+
 
     }
 }
