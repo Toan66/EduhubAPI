@@ -130,10 +130,17 @@ namespace EduhubAPI.Repositories
                               UserAddress = userInfo.UserAddress,
                               UserDescription = userInfo.UserDescription,
                               Expertise = userInfo.Expertise
-                          }
+                          },
+                          CourseReviews = _context.Courses
+                              .Where(c => c.TeacherId == user.UserId)
+                              .SelectMany(c => c.Reviews)
+                              .Select(r => new ReviewDto
+                              {
+                                  ReviewId = r.ReviewId,
+                                  Rating = r.Rating ?? 0,
+                              }).ToList()
                       }).ToList();
         }
-
         public IEnumerable<User> GetUsers()
         {
             return _context.Users.Include(u => u.UserInfos).ToList();

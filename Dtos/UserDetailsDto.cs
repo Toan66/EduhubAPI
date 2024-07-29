@@ -1,3 +1,4 @@
+// Assuming the UserDetailsDto class is defined in EduhubAPI.Dtos namespace
 namespace EduhubAPI.Dtos
 {
     public class UserDetailsDto
@@ -6,6 +7,7 @@ namespace EduhubAPI.Dtos
         public string Username { get; set; }
         public string UserType { get; set; }
         public UserInfoDto UserInfo { get; set; }
+        public List<ReviewDto> CourseReviews { get; set; } // Add this property
     }
 
     public class UserInfoDto
@@ -19,5 +21,11 @@ namespace EduhubAPI.Dtos
         public string UserAddress { get; set; }
         public string UserDescription { get; set; }
         public string Expertise { get; set; }
+    }
+
+    public class ReviewDto
+    {
+        public int ReviewId { get; set; }
+        public decimal Rating { get; set; }
     }
 }

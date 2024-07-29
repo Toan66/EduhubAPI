@@ -50,12 +50,27 @@ namespace EduhubAPI.Repositories
             var test = _context.Tests.FirstOrDefault(t => t.TestId == testId);
             if (test != null)
             {
+                // Retrieve all related questions
+                var questions = _context.Questions.Where(q => q.TestId == testId).ToList();
+
+                // For each question, retrieve and delete all related answers
+                foreach (var question in questions)
+                {
+                    var answers = _context.Answers.Where(a => a.QuestionId == question.QuestionId).ToList();
+                    _context.Answers.RemoveRange(answers);
+                }
+
+                // Delete all questions related to the test
+                _context.Questions.RemoveRange(questions);
+
+                // Delete the test itself
                 _context.Tests.Remove(test);
                 _context.SaveChanges();
                 return true;
             }
             return false;
         }
+
         // Add a question to a test
         public Question AddQuestionToTest(int testId, Question question)
         {

@@ -566,6 +566,8 @@ namespace EduhubAPI.Controllers
             return Ok();
         }
 
+
+
         [HttpPost("enroll")]
         public IActionResult EnrollInCourse([FromBody] EnrollInCourseDto dto)
         {
@@ -657,8 +659,10 @@ namespace EduhubAPI.Controllers
                 var token = _jwtService.Verify(jwt);
                 int userId = int.Parse(token.Issuer);
 
-                // Giả sử có phương thức GetEnrolledCoursesByUserId trong _courseRepository
-                var enrolledCourses = _courseRepository.GetEnrolledCourses(userId);
+                var enrolledCourses = _courseRepository.GetEnrolledCourses(userId)
+                    .Where(course => course.Course.ApprovalStatus == true)
+                    .ToList();
+
                 if (enrolledCourses == null || !enrolledCourses.Any())
                 {
                     return NotFound("No courses found.");
@@ -808,7 +812,20 @@ namespace EduhubAPI.Controllers
             }
         }
 
+        [HttpPost("{id}/unapprove")]
+        public IActionResult UnapproveCourse(int id)
+        {
+            var course = _courseRepository.GetCourseById(id);
+            if (course == null)
+            {
+                return NotFound("Not found.");
+            }
+            course.ApprovalStatus = false;
 
+            _courseRepository.UpdateCourse(course);
+
+            return Ok();
+        }
 
     }
 }

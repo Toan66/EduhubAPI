@@ -99,7 +99,7 @@ namespace EduhubAPI.Controllers
             try
             {
                 _lessonRepository.DeleteLesson(id);
-                return Ok($"Lesson với ID: {id} đã được xóa.");
+                return Ok($"Lesson with ID: {id} have been delete.");
             }
             catch (Exception ex)
             {
